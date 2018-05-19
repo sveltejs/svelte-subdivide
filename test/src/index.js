@@ -4,8 +4,6 @@ import { assert, test, done } from 'tape-modern';
 
 // setup
 const target = document.querySelector('main');
-target.style.width = '1000px';
-target.style.height = '1000px';
 
 function indent(node, spaces) {
 	if (node.childNodes.length === 0) return;
@@ -118,13 +116,12 @@ test('creates a single pane element that fills the target', t => {
 
 test('creates a new pane', t => {
 	const layout = init();
-	const { container } = layout.refs;
-	const { left, top, right, bottom } = container.getBoundingClientRect();
 
+	const { container } = layout.refs;
 	const pane = document.querySelector('.pane');
 
-	mousedown(pane, left + 5, 100, true);
-	mouseup(container, left + 0.2 * (right - left), 100);
+	mousedown(pane, 5, 100, true);
+	mouseup(container, 200, 100);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
@@ -158,20 +155,20 @@ test('preserves correct pane/divider relationships', t => {
 	let pane = document.querySelector('.pane');
 
 	// split from the left edge
-	mousedown(pane, left + 5, 100, true);
-	mouseup(container, left + 0.2 * width, 100);
+	mousedown(pane, 5, 100, true);
+	mouseup(container, 200, 100);
 
 	// split from the right edge
-	mousedown(pane, right - 5, 100, true);
-	mouseup(container, right - 0.2 * width, 100);
+	mousedown(pane, 995, 100, true);
+	mouseup(container, 800, 100);
 
 	// split from the top middle
-	mousedown(pane, cx, top + 5, true);
-	mouseup(container, cx, cy);
+	mousedown(pane, 500, 5, true);
+	mouseup(container, 500, 500);
 
 	// split the lower middle chunk from the left
-	mousedown(pane, (left + 5 + 0.2 * width), top + height * 0.75, true);
-	mouseup(container, cx, top + height * 0.75);
+	mousedown(pane, 205, 750, true);
+	mouseup(container, 500, 750);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
@@ -216,8 +213,8 @@ test('preserves correct pane/divider relationships', t => {
 	// now, check that dragging the leftmost vertical slider updates the
 	// layout how we expect
 	let divider = target.querySelectorAll('.divider')[0];
-	mousedown(divider, left + 0.2 * width, cy);
-	mouseup(container, left + 0.1 * width, cy);
+	mousedown(divider, 200, 500);
+	mouseup(container, 100, 500);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
@@ -261,13 +258,13 @@ test('preserves correct pane/divider relationships', t => {
 
 	// split the top middle pane
 	pane = target.querySelectorAll('.pane')[3];
-	mousedown(pane, (left + 5 + 0.1 * width), top + height * 0.25, true);
-	mouseup(container, cx, top + height * 0.25);
+	mousedown(pane, 105, 250, true);
+	mouseup(container, 500, 250);
 
 	// drag the rightmost vertical divider
 	divider = target.querySelectorAll('.divider')[1];
-	mousedown(divider, left + 0.8 * width, cy);
-	mouseup(container, left + 0.9 * width, cy);
+	mousedown(divider, 800, 500);
+	mouseup(container, 900, 500);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
