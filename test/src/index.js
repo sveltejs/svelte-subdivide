@@ -268,7 +268,7 @@ test('preserves correct pane/divider relationships', t => {
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
-			<div class="pane" style="left: 50%; top: 50%; width: 30%; height: 50%;">
+			<div class="pane" style="left: 50%; top: 50%; width: 40%; height: 50%;">
 				<span>1</span>
 			</div>
 
@@ -316,6 +316,8 @@ test('preserves correct pane/divider relationships', t => {
 
 	layout.destroy();
 });
+
+// TODO destroying panes
 
 // this allows us to close puppeteer once tests have completed
 window.done = done;

@@ -75,10 +75,13 @@
 
 			child.north = child.south = child.west = child.east = null;
 
-			if (this.north) this.north.after = this;
-			if (this.south) this.south.before = this;
-			if (this.west) this.west.after = this;
-			if (this.east) this.east.before = this;
+			if (type === constants.ROW) {
+				if (this.north) this.north.after = this;
+				if (this.south) this.south.before = this;
+			} else {
+				if (this.west) this.west.after = this;
+				if (this.east) this.east.before = this;
+			}
 		}
 
 		destroy(panes, dividers) {
