@@ -155,7 +155,7 @@ test('preserves correct pane/divider relationships', t => {
 	const cx = left + width / 2;
 	const cy = top + height / 2;
 
-	const pane = document.querySelector('.pane');
+	let pane = document.querySelector('.pane');
 
 	// split from the left edge
 	mousedown(pane, left + 5, 100, true);
@@ -215,7 +215,7 @@ test('preserves correct pane/divider relationships', t => {
 
 	// now, check that dragging the leftmost vertical slider updates the
 	// layout how we expect
-	const divider = target.querySelectorAll('.divider')[0];
+	let divider = target.querySelectorAll('.divider')[0];
 	mousedown(divider, left + 0.2 * width, cy);
 	mouseup(container, left + 0.1 * width, cy);
 
@@ -254,6 +254,64 @@ test('preserves correct pane/divider relationships', t => {
 			</div>
 
 			<div class="divider" style="top: 50%; left: 45%; height: 50%;">
+				<div class="draggable"></div>
+			</div>
+		</div>
+	`);
+
+	// split the top middle pane
+	pane = target.querySelectorAll('.pane')[3];
+	mousedown(pane, (left + 5 + 0.1 * width), top + height * 0.25, true);
+	mouseup(container, cx, top + height * 0.25);
+
+	// drag the rightmost vertical divider
+	divider = target.querySelectorAll('.divider')[1];
+	mousedown(divider, left + 0.8 * width, cy);
+	mouseup(container, left + 0.9 * width, cy);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="layout">
+			<div class="pane" style="left: 50%; top: 50%; width: 30%; height: 50%;">
+				<span>1</span>
+			</div>
+
+			<div class="pane" style="left: 0%; top: 0%; width: 10%; height: 100%;">
+				<span>2</span>
+			</div>
+
+			<div class="pane" style="left: 90%; top: 0%; width: 10%; height: 100%;">
+				<span>3</span>
+			</div>
+
+			<div class="pane" style="left: 55%; top: 0%; width: 35%; height: 50%;">
+				<span>4</span>
+			</div>
+
+			<div class="pane" style="left: 10%; top: 50%; width: 40%; height: 50%;">
+				<span>5</span>
+			</div>
+
+			<div class="pane" style="left: 10%; top: 0%; width: 45%; height: 50%;">
+				<span>6</span>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 10%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 90%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+
+			<div class="divider" style="left: 10%; top: 50%; width: 80%;">
+				<div class="draggable"></div>
+			</div>
+
+			<div class="divider" style="top: 50%; left: 50%; height: 50%;">
+				<div class="draggable"></div>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 55%; height: 50%;">
 				<div class="draggable"></div>
 			</div>
 		</div>
