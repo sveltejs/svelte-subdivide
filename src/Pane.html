@@ -1,0 +1,53 @@
+<div
+	class="pane"
+	style="
+		left: {pane.left * 100}%;
+		top: {pane.top * 100}%;
+		width: {pane.width * 100}%;
+		height: {pane.height * 100}%;
+	"
+	on:mousedown="handleMousedown(this, event)"
+>
+	<svelte:component this={component} {pane}/>
+</div>
+
+<style>
+	.pane {
+		position: absolute;
+		overflow: hidden;
+	}
+</style>
+
+<script>
+	import * as constants from './constants.js';
+
+	const THRESHOLD = 100;
+
+	export default {
+		methods: {
+			handleMousedown(node, event) {
+				if (!event.metaKey) return;
+
+				const { top, right, bottom, left } = node.getBoundingClientRect();
+				const { items } = this.get();
+
+				const d = [
+					[constants.NORTH, event.clientY - top],
+					[constants.SOUTH, bottom - event.clientY],
+					[constants.EAST, right - event.clientX],
+					[constants.WEST, event.clientX -left]
+				];
+
+				if (d[0][1] > THRESHOLD && d[1][1] > THRESHOLD && d[2][1] > THRESHOLD && d[3][1] > THRESHOLD) return;
+
+				d.sort((a, b) => a[1] - b[1]);
+
+				this.fire('split', {
+					edge: d[0][0],
+					clientX: event.clientX,
+					clientY: event.clientY
+				});
+			}
+		}
+	};
+</script>

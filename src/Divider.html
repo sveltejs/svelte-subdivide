@@ -1,0 +1,38 @@
+<div class="divider" {style} on:mousedown>
+	<div class="draggable"></div>
+</div>
+
+<style>
+	.divider {
+		position: absolute;
+		width: 0;
+		height: 0;
+	}
+
+	.draggable {
+		position: absolute;
+		left: -5px;
+		top: -5px;
+		width: calc(100% + 10px);
+		height: calc(100% + 10px);
+		background-color: white;
+	}
+</style>
+
+<script>
+	import * as constants from './constants.js';
+
+	export default {
+		computed: {
+			style: ({ divider }) => {
+				const group = divider.group;
+
+				if (divider.direction === constants.HORIZONTAL) {
+					return `left: ${group.left * 100}%; top: ${divider.position * 100}%; width: ${group.width * 100}%`;
+				} else {
+					return `top: ${group.top * 100}%; left: ${divider.position * 100}%; height: ${group.height * 100}%`;
+				}
+			}
+		}
+	};
+</script>
