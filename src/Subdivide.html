@@ -339,25 +339,25 @@
 				const before = _dragging.before;
 				const after = _dragging.after;
 
-				const position = _dragging.direction === constants.VERTICAL
-					? clamp(
-						(event.clientX - left) / (right - left),
-						(before ? before.left : 0),
-						(after ? (after.left + after.width) : 1)
-					)
-					: clamp(
-						(event.clientY - top) / (bottom - top),
-						(before ? before.top : 0),
-						(after ? (after.top + after.height) : 1)
-					);
-
-				const d = position - _dragging.position;
+				let position;
 
 				if (_dragging.direction === constants.VERTICAL) {
+					const min = before.left;
+					const max = after.left + after.width;
+					position = clamp((event.clientX - left) / (right - left), min, max);
+
+					const d = position - _dragging.position;
+
 					before.setWidth(before.width + d);
 					after.setWidth(after.width - d);
 					after.setLeft(after.left + d);
 				} else {
+					const min = before.top;
+					const max = after.top + after.height;
+					position = clamp((event.clientY - top) / (bottom - top), min, max);
+
+					const d = position - _dragging.position;
+
 					before.setHeight(before.height + d);
 					after.setHeight(after.height - d);
 					after.setTop(after.top + d);
