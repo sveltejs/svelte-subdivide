@@ -46,17 +46,22 @@
 			removeFromArray(panes, this);
 		}
 
-		setLeft(left) {
-			this.left = left;
+		setHorizontalRange(x1, x2) {
+			this.left = x1;
+			this.width = x2 - x1;
 		}
+
+		// setLeft(left) {
+		// 	this.left = left;
+		// }
 
 		setTop(top) {
 			this.top = top;
 		}
 
-		setWidth(width) {
-			this.width = width;
-		}
+		// setWidth(width) {
+		// 	this.width = width;
+		// }
 
 		setHeight(height) {
 			this.height = height;
@@ -105,11 +110,43 @@
 			this.children[index] = replacement;
 		}
 
-		setLeft(left) {
+		setHorizontalRange(x1, x2) {
+			const width = x2 - x1;
 			let i = this.children.length;
-			while (i--) this.children[i].setLeft(left);
-			this.left = left;
+
+			if (this.type === constants.COLUMN) {
+				while (i--) this.children[i].setHorizontalRange(x1, x2);
+			} else {
+				const f = width / this.width;
+
+				while (i--) {
+					const child = this.children[i];
+
+					const cx1 = x1 + f * (child.left - this.left);
+					const cx2 = cx1 + f * child.width;
+
+					child.setHorizontalRange(cx1, cx2);
+
+					// child.setLeft(this.left + f * (child.left - this.left));
+					// child.setWidth(child.width * f);
+				}
+
+				i = this.dividers.length;
+				while (i--) {
+					const divider = this.dividers[i];
+					divider.position = x1 + f * (divider.position - this.left);
+				}
+			}
+
+			this.left = x1;
+			this.width = width;
 		}
+
+		// setLeft(left) {
+		// 	let i = this.children.length;
+		// 	while (i--) this.children[i].setLeft(left);
+		// 	this.left = left;
+		// }
 
 		setTop(top) {
 			let i = this.children.length;
@@ -117,29 +154,29 @@
 			this.top = top;
 		}
 
-		setWidth(width) {
-			let i = this.children.length;
+		// setWidth(width) {
+		// 	let i = this.children.length;
 
-			if (this.type === constants.COLUMN) {
-				while (i--) this.children[i].setWidth(width);
-			} else {
-				const f = width / this.width;
+		// 	if (this.type === constants.COLUMN) {
+		// 		while (i--) this.children[i].setWidth(width);
+		// 	} else {
+		// 		const f = width / this.width;
 
-				while (i--) {
-					const child = this.children[i];
-					child.setLeft(this.left + f * (child.left - this.left));
-					child.setWidth(child.width * f);
-				}
+		// 		while (i--) {
+		// 			const child = this.children[i];
+		// 			child.setLeft(this.left + f * (child.left - this.left));
+		// 			child.setWidth(child.width * f);
+		// 		}
 
-				i = this.dividers.length;
-				while (i--) {
-					const divider = this.dividers[i];
-					divider.position = this.left + f * (divider.position - this.left);
-				}
-			}
+		// 		i = this.dividers.length;
+		// 		while (i--) {
+		// 			const divider = this.dividers[i];
+		// 			divider.position = this.left + f * (divider.position - this.left);
+		// 		}
+		// 	}
 
-			this.width = width;
-		}
+		// 	this.width = width;
+		// }
 
 		setHeight(height) {
 			let i = this.children.length;
@@ -348,9 +385,12 @@
 
 					const d = position - _dragging.position;
 
-					before.setWidth(before.width + d);
-					after.setWidth(after.width - d);
-					after.setLeft(after.left + d);
+					before.setHorizontalRange(min, position);
+					after.setHorizontalRange(position, max);
+
+					// before.setWidth(before.width + d);
+					// after.setWidth(after.width - d);
+					// after.setLeft(after.left + d);
 				} else {
 					const min = before.top;
 					const max = after.top + after.height;
