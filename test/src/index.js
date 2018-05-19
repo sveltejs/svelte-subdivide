@@ -215,7 +215,7 @@ test('preserves correct pane/divider relationships', t => {
 
 	// now, check that dragging the leftmost vertical slider updates the
 	// layout how we expect
-	const divider = target.querySelectorAll('.divider')[2];
+	const divider = target.querySelectorAll('.divider')[0];
 	mousedown(divider, left + 0.2 * width, cy);
 	mouseup(container, left + 0.1 * width, cy);
 
