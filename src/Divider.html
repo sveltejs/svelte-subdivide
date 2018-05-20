@@ -27,10 +27,15 @@
 			style: ({ divider }) => {
 				const group = divider.parent;
 
+				const x = group.getLeft();
+				const y = group.getTop();
+				const w = group.getWidth();
+				const h = group.getHeight();
+
 				if (divider.direction === constants.HORIZONTAL) {
-					return `left: ${group.getLeft() * 100}%; top: ${divider.position * 100}%; width: ${group.getWidth() * 100}%`;
+					return `left: ${x * 100}%; top: ${(y + divider.position * h) * 100}%; width: ${w * 100}%`;
 				} else {
-					return `top: ${group.getTop() * 100}%; left: ${divider.position * 100}%; height: ${group.getHeight() * 100}%`;
+					return `top: ${y * 100}%; left: ${(x + divider.position * w) * 100}%; height: ${h * 100}%`;
 				}
 			}
 		}
