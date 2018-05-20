@@ -8,12 +8,23 @@
 	"
 	on:mousedown="handleMousedown(this, event)"
 >
-	<svelte:component this={component} {pane}/>
+	<div class="inner">
+		<svelte:component this={component} {pane}/>
+	</div>
 </div>
 
 <style>
 	.pane {
 		position: absolute;
+		overflow: hidden;
+		box-sizing: border-box;
+		padding: calc(var(--spacing) / 2);
+	}
+
+	.inner {
+		position: relative;
+		width: 100%;
+		height: 100%;
 		overflow: hidden;
 	}
 </style>
