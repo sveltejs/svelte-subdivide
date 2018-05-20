@@ -395,6 +395,51 @@ test('preserves correct pane/divider relationships (b)', t => {
 	layout.destroy();
 });
 
+it('destroys panes', t => {
+	const layout = init();
+
+	const { container } = layout.refs;
+	const pane = document.querySelector('.pane');
+
+	mousedown(pane, 5, 100, true);
+	mouseup(container, 200, 100);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="layout">
+			<div class="pane" style="left: 20%; top: 0%; width: 80%; height: 100%;">
+				<span>0</span>
+			</div>
+
+			<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%;">
+				<span>1</span>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 20%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+		</div>
+	`);
+
+	let divider = target.querySelector('.divider');
+
+	mousedown(divider, 200, 500);
+	mouseup(container, 1001, 500);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="layout">
+			<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 100%;">
+				<span>1</span>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 20%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+		</div>
+	`);
+
+	layout.destroy();
+});
+
 // TODO destroying panes
 // TODO save to localStorage
 // TODO customise divider size

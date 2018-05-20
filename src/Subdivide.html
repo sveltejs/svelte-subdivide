@@ -104,6 +104,12 @@
 			super(x, y, w, h, prev, next);
 			this.id = id;
 		}
+
+		destroy(panes, dividers) {
+			const index = panes.indexOf(this);
+			if (index === -1) throw new Error(`Unexpected error`);
+			panes.splice(index, 1);
+		}
 	}
 
 	class Group extends Rect {
@@ -130,6 +136,14 @@
 			child.parent = replacement;
 			replacement.children.push(child);
 		}
+
+		destroy(panes, dividers) {
+			let i = this.children.length;
+			while (i--) this.children[i].destroy(panes, dividers);
+
+			i = this.dividers.length;
+			while (i--) this.dividers[i].destroy(panes, dividers);
+		}
 	}
 
 	class Divider {
@@ -140,6 +154,14 @@
 			this.position = position;
 			this.prev = prev;
 			this.next = next;
+
+			group.dividers.push(this);
+		}
+
+		destroy(panes, dividers) {
+			const index = dividers.indexOf(this);
+			if (index === -1) throw new Error(`Unexpected error`);
+			dividers.splice(index, 1);
 		}
 	}
 
@@ -324,58 +346,37 @@
 
 				this.drag(event);
 
-				if (_dragging.direction === constants.VERTICAL) {
-					if (_dragging.prev.width < 0.0001 || _dragging.next.width < 0.0001) {
-						removeFromArray(_dragging.parent.dividers, _dragging);
-						removeFromArray(_dividers, _dragging);
+				const prevSize = _dragging.direction === constants.VERTICAL
+					? _dragging.prev.w
+					: _dragging.prev.h;
 
-						if (_dragging.prev.width < 0.0001) {
-							const mergedDivider = _dragging.prev.west;
+				const min = Math.min(prevSize, _dragging.direction === constants.VERTICAL
+					? _dragging.next.w
+					: _dragging.next.h)
 
-							_dragging.next.west = mergedDivider;
-							if (mergedDivider) mergedDivider.next = _dragging.next;
+				if (min < 0.0001) {
+					removeFromArray(_dragging.parent.dividers, _dragging);
+					removeFromArray(_dividers, _dragging);
 
-							_dragging.prev.destroy(_panes, _dividers);
-							if (_dragging.prev.parent) {
-								removeFromArray(_dragging.prev.parent.children, _dragging.prev);
-							}
-						} else {
-							const mergedDivider = _dragging.next.east;
+					if (prevSize < 0.0001) {
+						const mergedDivider = _dragging.prev.prev;
 
-							_dragging.prev.east = mergedDivider;
-							if (mergedDivider) mergedDivider.prev = _dragging.prev;
+						_dragging.next.prev = mergedDivider;
+						if (mergedDivider) mergedDivider.next = _dragging.next;
 
-							_dragging.next.destroy(_panes, _dividers);
-							if (_dragging.next.parent) {
-								removeFromArray(_dragging.next.parent.children, _dragging.next);
-							}
+						_dragging.prev.destroy(_panes, _dividers);
+						if (_dragging.prev.parent) {
+							removeFromArray(_dragging.prev.parent.children, _dragging.prev);
 						}
-					}
-				} else {
-					if (_dragging.prev.height < 0.0001 || _dragging.next.height < 0.0001) {
-						removeFromArray(_dragging.parent.dividers, _dragging);
-						removeFromArray(_dividers, _dragging);
+					} else {
+						const mergedDivider = _dragging.next.next;
 
-						if (_dragging.prev.height < 0.0001) {
-							const mergedDivider = _dragging.prev.north;
+						_dragging.prev.next = mergedDivider;
+						if (mergedDivider) mergedDivider.prev = _dragging.prev;
 
-							_dragging.next.north = mergedDivider;
-							if (mergedDivider) mergedDivider.next = _dragging.next;
-
-							_dragging.prev.destroy(_panes, _dividers);
-							if (_dragging.prev.parent) {
-								removeFromArray(_dragging.prev.parent.children, _dragging.prev);
-							}
-						} else {
-							const mergedDivider = _dragging.next.south;
-
-							_dragging.prev.south = mergedDivider;
-							if (mergedDivider) mergedDivider.prev = _dragging.prev;
-
-							_dragging.next.destroy(_panes, _dividers);
-							if (_dragging.next.parent) {
-								removeFromArray(_dragging.next.parent.children, _dragging.next);
-							}
+						_dragging.next.destroy(_panes, _dividers);
+						if (_dragging.next.parent) {
+							removeFromArray(_dragging.next.parent.children, _dragging.next);
 						}
 					}
 				}
