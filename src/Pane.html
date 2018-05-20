@@ -1,10 +1,10 @@
 <div
 	class="pane"
 	style="
-		left: {pane.left * 100}%;
-		top: {pane.top * 100}%;
-		width: {pane.width * 100}%;
-		height: {pane.height * 100}%;
+		left: {pane.getLeft() * 100}%;
+		top: {pane.getTop() * 100}%;
+		width: {pane.getWidth() * 100}%;
+		height: {pane.getHeight() * 100}%;
 	"
 	on:mousedown="handleMousedown(this, event)"
 >

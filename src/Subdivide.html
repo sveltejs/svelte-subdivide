@@ -25,165 +25,115 @@
 
 <script>
 	import * as constants from './constants.js';
+	import { removeFromArray, clamp } from './utils.js';
 
-	class Pane {
-		constructor(opts, id) {
-			this.id = id;
-			this.group = null;
+	class Rect {
+		constructor(x, y, w, h, prev, next) {
+			this.x = x;
+			this.y = y;
+			this.w = w;
+			this.h = h;
 
-			this.top = opts.top;
-			this.left = opts.left;
-			this.width = opts.width;
-			this.height = opts.height;
+			this.prev = prev;
+			this.next = next;
 
-			this.north = opts.north;
-			this.south = opts.south;
-			this.east = opts.east;
-			this.west = opts.west;
+			this.parent = null;
 		}
 
-		destroy(panes) {
-			removeFromArray(panes, this);
+		bounds(rect) {
+			return {
+				left: rect.left * this.getLeft(),
+				top: rect.top * this.getTop(),
+				width: (rect.right - rect.left) * this.getWidth(),
+				height: (rect.bottom - rect.top) * this.getHeight()
+			};
 		}
 
-		setHorizontalRange(x1, x2) {
-			this.left = x1;
-			this.width = x2 - x1;
+		getLeft() {
+			let left = this.x;
+
+			let node = this;
+			while (node = node.parent) left = node.x + (node.w * left);
+
+			return left;
 		}
 
-		setVerticalRange(y1, y2) {
-			this.top = y1;
-			this.height = y2 - y1;
+		getTop() {
+			let top = this.y;
+
+			let node = this;
+			while (node = node.parent) top = node.y + (node.h * top);
+
+			return top;
+		}
+
+		getWidth() {
+			let width = this.w;
+
+			let node = this;
+			while (node = node.parent) width *= node.w;
+
+			return width;
+		}
+
+		getHeight() {
+			let height = this.h;
+
+			let node = this;
+			while (node = node.parent) height *= node.h;
+
+			return height;
+		}
+
+		setRange(a, b) {
+			if (this.parent.type === constants.COLUMN) {
+				this.y = a;
+				this.h = (b - a);
+			} else {
+				this.x = a;
+				this.w = (b - a);
+			}
 		}
 	}
 
-	class Group {
-		constructor(child, type) {
-			this.type = type;
-			this.children = [child];
-			this.dividers = [];
-			this.group = null;
-
-			this.top = child.top;
-			this.left = child.left;
-			this.width = child.width;
-			this.height = child.height;
-
-			this.north = child.north;
-			this.south = child.south;
-			this.east = child.east;
-			this.west = child.west;
-
-			child.north = child.south = child.west = child.east = null;
-
-			if (type === constants.ROW) {
-				if (this.north) this.north.after = this;
-				if (this.south) this.south.before = this;
-			} else {
-				if (this.west) this.west.after = this;
-				if (this.east) this.east.before = this;
-			}
+	class Pane extends Rect {
+		constructor(id, { x, y, w, h, prev, next }) {
+			super(x, y, w, h, prev, next);
+			this.id = id;
 		}
+	}
 
-		destroy(panes, dividers) {
-			let i = this.dividers.length;
-			while (i--) removeFromArray(dividers, this.dividers[i]);
+	class Group extends Rect {
+		constructor(type, { x, y, w, h, prev, next }) {
+			super(x, y, w, h, prev, next);
 
-			i = this.children.length;
-			while (i--) this.children[i].destroy(panes, dividers);
+			this.type = type;
+			this.children = [];
+			this.dividers = [];
 		}
 
 		addChild(child) {
 			this.children.push(child);
+			child.parent = this;
 		}
 
 		replaceChild(child, replacement) {
 			const index = this.children.indexOf(child);
 			if (index === -1) throw new Error(`Unexpected error`);
 			this.children[index] = replacement;
-			replacement.group = this;
-		}
-
-		setHorizontalRange(x1, x2) {
-			const width = x2 - x1;
-			let i = this.children.length;
-
-			if (this.type === constants.COLUMN) {
-				while (i--) this.children[i].setHorizontalRange(x1, x2);
-			} else {
-				const f = width / this.width;
-
-				while (i--) {
-					const child = this.children[i];
-
-					const cx1 = x1 + f * (child.left - this.left);
-					const cx2 = cx1 + f * child.width;
-
-					child.setHorizontalRange(cx1, cx2);
-				}
-
-				i = this.dividers.length;
-				while (i--) {
-					const divider = this.dividers[i];
-					divider.position = x1 + f * (divider.position - this.left);
-				}
-			}
-
-			this.left = x1;
-			this.width = width;
-		}
-
-		setVerticalRange(y1, y2) {
-			const height = y2 - y1;
-			let i = this.children.length;
-
-			if (this.type === constants.ROW) {
-				while (i--) this.children[i].setVerticalRange(y1, y2);
-			} else {
-				const f = height / this.height;
-
-				while (i--) {
-					const child = this.children[i];
-
-					const cy1 = y1 + f * (child.top - this.top);
-					const cy2 = cy1 + f * child.height;
-
-					child.setVerticalRange(cy1, cy2);
-				}
-
-				i = this.dividers.length;
-				while (i--) {
-					const divider = this.dividers[i];
-					divider.position = y1 + f * (divider.position - this.top);
-				}
-			}
-
-			this.top = y1;
-			this.height = height;
+			replacement.parent = this;
 		}
 	}
 
 	class Divider {
-		constructor({ id, direction, group, position, before, after }) {
+		constructor({ id, direction, group, position, prev, next }) {
 			this.id = id;
 			this.direction = direction;
-			this.group = group;
+			this.parent = group;
 			this.position = position;
-			this.before = before;
-			this.after = after;
+			this.prev = prev;
+			this.next = next;
 		}
-	}
-
-	function clamp(num, min, max) {
-		if (num < min) return min;
-		if (num > max) return max;
-		return num;
-	}
-
-	function removeFromArray(array, item) {
-		const index = array.indexOf(item);
-		if (index === -1) throw new Error('Unexpected error');
-		array.splice(index, 1);
 	}
 
 	export default {
@@ -193,12 +143,25 @@
 		},
 
 		data() {
-			const pane = new Pane({
-				top: 0,
-				left: 0,
-				width: 1,
-				height: 1
-			}, 1);
+			const root = new Group(constants.COLUMN, {
+				x: 0,
+				y: 0,
+				w: 1,
+				h: 1,
+				prev: null,
+				next: null
+			});
+
+			const pane = new Pane(1, {
+				x: 0,
+				y: 0,
+				w: 1,
+				h:1,
+				prev: null,
+				next: null
+			});
+
+			root.addChild(pane);
 
 			return {
 				_pid: 2,
@@ -218,102 +181,84 @@
 					? constants.HORIZONTAL
 					: constants.VERTICAL;
 
-				let group = pane.group;
-
-				const newPane = new Pane(pane, _pid++);
-
 				const type = direction === constants.HORIZONTAL
 					? constants.COLUMN
 					: constants.ROW;
 
+				let group = pane.parent;
+
 				const newGroup = group && group.type === type
 					? null
-					: new Group(pane, type);
+					: new Group(type, pane);
 
 				if (newGroup) {
-					if (pane.group) pane.group.replaceChild(pane, newGroup);
+					pane.x = pane.y = 0;
+					pane.w = pane.h = 1;
+
+					if (pane.parent) pane.parent.replaceChild(pane, newGroup);
 					group = newGroup;
 				}
 
-				group.addChild(newPane);
-				pane.group = group;
-				newPane.group = group;
+				const bounds = group.bounds(this.refs.container.getBoundingClientRect());
 
-				const x = (event.clientX - left) / (right - left);
-				const y = (event.clientY - top) / (bottom - top);
+				const newPane = new Pane(_pid++, pane);
+
+				pane.parent = newPane.parent = group;
 
 				const divider = new Divider({
 					id: _did++,
 					direction,
 					group,
-					position: edge === constants.EAST || edge === constants.WEST
-						? x
-						: y,
-					before: edge === constants.NORTH || edge === constants.WEST
-						? newPane
-						: pane,
-					after: edge === constants.NORTH || edge === constants.WEST
-						? pane
-						: newPane
+					position: null,
+					prev: null,
+					next: null
 				});
 
-				switch (edge) {
-					case constants.NORTH:
-						pane.height -= (y - pane.top);
-						newPane.top = pane.top;
+				if (type === constants.COLUMN) {
+					const y = (clientY - bounds.top) / bounds.height;
+					const d = y - pane.y;
 
-						newPane.height = y - pane.top;
-						pane.top = y;
+					divider.position = y;
 
-						if (pane.north) pane.north.after = newPane;
+					if (edge === constants.NORTH) {
+						newPane.h = d;
+						pane.y += y;
+						pane.h -= d;
 
-						pane.north = divider;
-						newPane.south = divider;
+						divider.prev = newPane;
+						divider.next = pane;
+					} else {
+						newPane.y = y;
+						newPane.h = pane.h - d;
+						pane.h  = d;
 
-						break;
+						divider.prev = pane;
+						divider.next = newPane;
+					}
+				} else {
+					const x = (clientX - bounds.left) / bounds.width;
+					const d = x - pane.x;
 
-					case constants.SOUTH:
-						newPane.height = (pane.top + pane.height) - y;
-						pane.height = (y - pane.top);
+					divider.position = x;
 
-						newPane.top = y;
+					if (edge === constants.WEST) {
+						newPane.w = d;
+						pane.x += x;
+						pane.w -= d;
 
-						if (pane.south) pane.south.before = newPane;
+						divider.prev = newPane;
+						divider.next = pane;
+					} else {
+						newPane.x = x;
+						newPane.w = pane.w - d;
+						pane.w  = d;
 
-						pane.south = divider;
-						newPane.north = divider;
-
-						break;
-
-					case constants.EAST:
-						newPane.left = x;
-						newPane.width = (pane.left + pane.width) - x;
-
-						pane.width = x - pane.left;
-
-						if (pane.east) pane.east.before = newPane;
-
-						pane.east = divider;
-						newPane.west = divider;
-
-						break;
-
-					case constants.WEST:
-						newPane.left = pane.left;
-						newPane.width = (x - pane.left);
-
-						pane.left = x;
-						pane.width -= newPane.width;
-
-						if (pane.west) pane.west.after = newPane;
-
-						pane.west = divider;
-						newPane.east = divider;
-
-						break;
+						divider.prev = pane;
+						divider.next = newPane;
+					}
 				}
 
-				group.dividers.push(divider);
+				group.addChild(newPane);
 
 				_panes.push(newPane);
 				_dividers.push(divider);
@@ -331,27 +276,31 @@
 				const { _panes, _dividers, _dragging } = this.get();
 				if (!_dragging) return
 
-				const { left, top, right, bottom } = this.refs.container.getBoundingClientRect();
+				const bounds = _dragging.parent.bounds(this.refs.container.getBoundingClientRect());
 
-				const before = _dragging.before;
-				const after = _dragging.after;
+				const prev = _dragging.prev;
+				const next = _dragging.next;
+
+				console.log({ prev, next });
 
 				let position;
 
 				if (_dragging.direction === constants.VERTICAL) {
-					const min = before.left;
-					const max = after.left + after.width;
-					position = clamp((event.clientX - left) / (right - left), min, max);
+					const min = prev.x;
+					const max = next.x + next.w;
+					position = clamp((event.clientX - bounds.left) / bounds.width, min, max);
 
-					before.setHorizontalRange(min, position);
-					after.setHorizontalRange(position, max);
+					prev.setRange(min, position);
+					next.setRange(position, max);
 				} else {
-					const min = before.top;
-					const max = after.top + after.height;
-					position = clamp((event.clientY - top) / (bottom - top), min, max);
+					const min = prev.y;
+					const max = next.y + next.h;
+					position = clamp((event.clientY - bounds.top) / bounds.height, min, max);
 
-					before.setVerticalRange(min, position);
-					after.setVerticalRange(position, max);
+					prev.setRange(min, position);
+					next.setRange(position, max);
+
+					console.log({ prev, next });
 				}
 
 				_dragging.position = position;
@@ -366,56 +315,56 @@
 				this.drag(event);
 
 				if (_dragging.direction === constants.VERTICAL) {
-					if (_dragging.before.width < 0.0001 || _dragging.after.width < 0.0001) {
-						removeFromArray(_dragging.group.dividers, _dragging);
+					if (_dragging.prev.width < 0.0001 || _dragging.next.width < 0.0001) {
+						removeFromArray(_dragging.parent.dividers, _dragging);
 						removeFromArray(_dividers, _dragging);
 
-						if (_dragging.before.width < 0.0001) {
-							const mergedDivider = _dragging.before.west;
+						if (_dragging.prev.width < 0.0001) {
+							const mergedDivider = _dragging.prev.west;
 
-							_dragging.after.west = mergedDivider;
-							if (mergedDivider) mergedDivider.after = _dragging.after;
+							_dragging.next.west = mergedDivider;
+							if (mergedDivider) mergedDivider.next = _dragging.next;
 
-							_dragging.before.destroy(_panes, _dividers);
-							if (_dragging.before.group) {
-								removeFromArray(_dragging.before.group.children, _dragging.before);
+							_dragging.prev.destroy(_panes, _dividers);
+							if (_dragging.prev.parent) {
+								removeFromArray(_dragging.prev.parent.children, _dragging.prev);
 							}
 						} else {
-							const mergedDivider = _dragging.after.east;
+							const mergedDivider = _dragging.next.east;
 
-							_dragging.before.east = mergedDivider;
-							if (mergedDivider) mergedDivider.before = _dragging.before;
+							_dragging.prev.east = mergedDivider;
+							if (mergedDivider) mergedDivider.prev = _dragging.prev;
 
-							_dragging.after.destroy(_panes, _dividers);
-							if (_dragging.after.group) {
-								removeFromArray(_dragging.after.group.children, _dragging.after);
+							_dragging.next.destroy(_panes, _dividers);
+							if (_dragging.next.parent) {
+								removeFromArray(_dragging.next.parent.children, _dragging.next);
 							}
 						}
 					}
 				} else {
-					if (_dragging.before.height < 0.0001 || _dragging.after.height < 0.0001) {
-						removeFromArray(_dragging.group.dividers, _dragging);
+					if (_dragging.prev.height < 0.0001 || _dragging.next.height < 0.0001) {
+						removeFromArray(_dragging.parent.dividers, _dragging);
 						removeFromArray(_dividers, _dragging);
 
-						if (_dragging.before.height < 0.0001) {
-							const mergedDivider = _dragging.before.north;
+						if (_dragging.prev.height < 0.0001) {
+							const mergedDivider = _dragging.prev.north;
 
-							_dragging.after.north = mergedDivider;
-							if (mergedDivider) mergedDivider.after = _dragging.after;
+							_dragging.next.north = mergedDivider;
+							if (mergedDivider) mergedDivider.next = _dragging.next;
 
-							_dragging.before.destroy(_panes, _dividers);
-							if (_dragging.before.group) {
-								removeFromArray(_dragging.before.group.children, _dragging.before);
+							_dragging.prev.destroy(_panes, _dividers);
+							if (_dragging.prev.parent) {
+								removeFromArray(_dragging.prev.parent.children, _dragging.prev);
 							}
 						} else {
-							const mergedDivider = _dragging.after.south;
+							const mergedDivider = _dragging.next.south;
 
-							_dragging.before.south = mergedDivider;
-							if (mergedDivider) mergedDivider.before = _dragging.before;
+							_dragging.prev.south = mergedDivider;
+							if (mergedDivider) mergedDivider.prev = _dragging.prev;
 
-							_dragging.after.destroy(_panes, _dividers);
-							if (_dragging.after.group) {
-								removeFromArray(_dragging.after.group.children, _dragging.after);
+							_dragging.next.destroy(_panes, _dividers);
+							if (_dragging.next.parent) {
+								removeFromArray(_dragging.next.parent.children, _dragging.next);
 							}
 						}
 					}

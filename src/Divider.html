@@ -25,12 +25,12 @@
 	export default {
 		computed: {
 			style: ({ divider }) => {
-				const group = divider.group;
+				const group = divider.parent;
 
 				if (divider.direction === constants.HORIZONTAL) {
-					return `left: ${group.left * 100}%; top: ${divider.position * 100}%; width: ${group.width * 100}%`;
+					return `left: ${group.left * 100}%; top: ${divider.position * 100}%; width: ${group.getWidth() * 100}%`;
 				} else {
-					return `top: ${group.top * 100}%; left: ${divider.position * 100}%; height: ${group.height * 100}%`;
+					return `top: ${group.top * 100}%; left: ${divider.position * 100}%; height: ${group.getHeight() * 100}%`;
 				}
 			}
 		}

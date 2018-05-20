@@ -318,6 +318,8 @@ test('preserves correct pane/divider relationships', t => {
 });
 
 // TODO destroying panes
+// TODO save to localStorage
+// TODO customise divider size
 
 // this allows us to close puppeteer once tests have completed
 window.done = done;
