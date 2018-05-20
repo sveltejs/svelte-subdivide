@@ -159,7 +159,7 @@
 				next: null
 			});
 
-			const pane = new Pane(1, {
+			const pane = new Pane(0, {
 				x: 0,
 				y: 0,
 				w: 1,
@@ -171,8 +171,8 @@
 			root.addChild(pane);
 
 			return {
-				_pid: 2,
-				_did: 1,
+				_pid: 1,
+				_did: 0,
 				_panes: [pane],
 				_dividers: []
 			};
@@ -235,22 +235,10 @@
 						newPane.h = d;
 						pane.y += y;
 						pane.h -= d;
-
-						pane.prev = divider;
-						newPane.next = divider;
-
-						divider.prev = newPane;
-						divider.next = pane;
 					} else {
 						newPane.y = y;
 						newPane.h = pane.h - d;
 						pane.h  = d;
-
-						pane.next = divider;
-						newPane.prev = divider;
-
-						divider.prev = pane;
-						divider.next = newPane;
 					}
 				} else {
 					const x = (clientX - bounds.left) / bounds.width;
@@ -262,23 +250,29 @@
 						newPane.w = d;
 						pane.x += x;
 						pane.w -= d;
-
-						pane.prev = divider;
-						newPane.next = divider;
-
-						divider.prev = newPane;
-						divider.next = pane;
 					} else {
 						newPane.x = x;
 						newPane.w = pane.w - d;
 						pane.w  = d;
-
-						pane.next = divider;
-						newPane.prev = divider;
-
-						divider.prev = pane;
-						divider.next = newPane;
 					}
+				}
+
+				if (edge === constants.NORTH || edge === constants.WEST) {
+					pane.prev = divider;
+					newPane.next = divider;
+
+					if (pane.prev) pane.prev.next = newPane;
+
+					divider.prev = newPane;
+					divider.next = pane;
+				} else {
+					divider.prev = pane;
+					divider.next = newPane;
+
+					if (pane.next) pane.next.prev = newPane;
+
+					pane.next = divider;
+					newPane.prev = divider;
 				}
 
 				_panes.push(newPane);

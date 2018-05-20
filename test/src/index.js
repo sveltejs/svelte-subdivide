@@ -106,7 +106,7 @@ test('creates a single pane element that fills the target', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
 			<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 100%;">
-				<span>1</span>
+				<span>0</span>
 			</div>
 		</div>
 	`);
@@ -126,11 +126,11 @@ test('creates a new pane', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
 			<div class="pane" style="left: 20%; top: 0%; width: 80%; height: 100%;">
-				<span>1</span>
+				<span>0</span>
 			</div>
 
 			<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%;">
-				<span>2</span>
+				<span>1</span>
 			</div>
 
 			<div class="divider" style="top: 0%; left: 20%; height: 100%;">
@@ -142,7 +142,7 @@ test('creates a new pane', t => {
 	layout.destroy();
 });
 
-test('preserves correct pane/divider relationships', t => {
+test('preserves correct pane/divider relationships (a)', t => {
 	const layout = init();
 	const { container } = layout.refs;
 
@@ -173,23 +173,23 @@ test('preserves correct pane/divider relationships', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
 			<div class="pane" style="left: 50%; top: 50%; width: 30%; height: 50%;">
-				<span>1</span>
+				<span>0</span>
 			</div>
 
 			<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%;">
-				<span>2</span>
+				<span>1</span>
 			</div>
 
 			<div class="pane" style="left: 80%; top: 0%; width: 20%; height: 100%;">
-				<span>3</span>
+				<span>2</span>
 			</div>
 
 			<div class="pane" style="left: 20%; top: 0%; width: 60%; height: 50%;">
-				<span>4</span>
+				<span>3</span>
 			</div>
 
 			<div class="pane" style="left: 20%; top: 50%; width: 30%; height: 50%;">
-				<span>5</span>
+				<span>4</span>
 			</div>
 
 			<div class="divider" style="top: 0%; left: 20%; height: 100%;">
@@ -219,23 +219,23 @@ test('preserves correct pane/divider relationships', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
 			<div class="pane" style="left: 45%; top: 50%; width: 35%; height: 50%;">
-				<span>1</span>
+				<span>0</span>
 			</div>
 
 			<div class="pane" style="left: 0%; top: 0%; width: 10%; height: 100%;">
-				<span>2</span>
+				<span>1</span>
 			</div>
 
 			<div class="pane" style="left: 80%; top: 0%; width: 20%; height: 100%;">
-				<span>3</span>
+				<span>2</span>
 			</div>
 
 			<div class="pane" style="left: 10%; top: 0%; width: 70%; height: 50%;">
-				<span>4</span>
+				<span>3</span>
 			</div>
 
 			<div class="pane" style="left: 10%; top: 50%; width: 35%; height: 50%;">
-				<span>5</span>
+				<span>4</span>
 			</div>
 
 			<div class="divider" style="top: 0%; left: 10%; height: 100%;">
@@ -269,27 +269,27 @@ test('preserves correct pane/divider relationships', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
 			<div class="pane" style="left: 50%; top: 50%; width: 40%; height: 50%;">
-				<span>1</span>
+				<span>0</span>
 			</div>
 
 			<div class="pane" style="left: 0%; top: 0%; width: 10%; height: 100%;">
-				<span>2</span>
+				<span>1</span>
 			</div>
 
 			<div class="pane" style="left: 90%; top: 0%; width: 10%; height: 100%;">
-				<span>3</span>
+				<span>2</span>
 			</div>
 
 			<div class="pane" style="left: 55%; top: 0%; width: 35%; height: 50%;">
-				<span>4</span>
+				<span>3</span>
 			</div>
 
 			<div class="pane" style="left: 10%; top: 50%; width: 40%; height: 50%;">
-				<span>5</span>
+				<span>4</span>
 			</div>
 
 			<div class="pane" style="left: 10%; top: 0%; width: 45%; height: 50%;">
-				<span>6</span>
+				<span>5</span>
 			</div>
 
 			<div class="divider" style="top: 0%; left: 10%; height: 100%;">
@@ -317,7 +317,7 @@ test('preserves correct pane/divider relationships', t => {
 	layout.destroy();
 });
 
-test.only('preserves correct pane/divider relationships', t => {
+test('preserves correct pane/divider relationships (b)', t => {
 	const layout = init();
 	const { container } = layout.refs;
 
@@ -334,21 +334,22 @@ test.only('preserves correct pane/divider relationships', t => {
 	mouseup(container, 700, 100);
 
 	// split from the new split
+	pane = target.querySelectorAll('.pane')[1];
 	mousedown(pane, 695, 100, true);
 	mouseup(container, 300, 100);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
 			<div class="pane" style="left: 70%; top: 0%; width: 30%; height: 100%;">
-				<span>1</span>
+				<span>0</span>
 			</div>
 
 			<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%;">
-				<span>2</span>
+				<span>1</span>
 			</div>
 
 			<div class="pane" style="left: 30%; top: 0%; width: 40%; height: 100%;">
-				<span>3</span>
+				<span>2</span>
 			</div>
 
 			<div class="divider" style="top: 0%; left: 70%; height: 100%;">
@@ -370,15 +371,15 @@ test.only('preserves correct pane/divider relationships', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="layout">
 			<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%;">
-				<span>1</span>
+				<span>0</span>
 			</div>
 
 			<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%;">
-				<span>2</span>
+				<span>1</span>
 			</div>
 
 			<div class="pane" style="left: 30%; top: 0%; width: 20%; height: 100%;">
-				<span>3</span>
+				<span>2</span>
 			</div>
 
 			<div class="divider" style="top: 0%; left: 50%; height: 100%;">
