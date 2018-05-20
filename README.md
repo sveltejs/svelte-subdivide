@@ -15,7 +15,7 @@ yarn add @sveltejs/svelte-subdivide
 ## Usage
 
 ```html
-<Subdivide items={things} component={Pane} />
+<Subdivide component={Pane} />
 
 <script>
   import Subdivide from '@sveltejs/svelte-subdivide';
@@ -48,6 +48,17 @@ The component constructor you supply to `<Subdivide>` will be instantiated for e
     {/each}
   {/if}
 </div>
+```
+
+Note that this component uses CSS variables, and may therefore behave strangely in IE.
+
+
+## Parameters
+
+You can specify a `spacing` parameter that controls the width of the dividers. It can be any CSS length:
+
+```html
+<Subdivide component={Pane} spacing="0.5em"/>
 ```
 
 
