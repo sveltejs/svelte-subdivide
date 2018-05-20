@@ -204,6 +204,11 @@
 
 					pane.parent.replaceChild(pane, newGroup);
 					group = newGroup;
+
+					if (pane.next) pane.next.prev = newGroup;
+					if (pane.prev) pane.prev.next = newGroup;
+
+					pane.next = pane.prev = null;
 				}
 
 				const bounds = group.bounds(this.refs.container.getBoundingClientRect());
@@ -231,12 +236,18 @@
 						pane.y += y;
 						pane.h -= d;
 
+						pane.prev = divider;
+						newPane.next = divider;
+
 						divider.prev = newPane;
 						divider.next = pane;
 					} else {
 						newPane.y = y;
 						newPane.h = pane.h - d;
 						pane.h  = d;
+
+						pane.next = divider;
+						newPane.prev = divider;
 
 						divider.prev = pane;
 						divider.next = newPane;
@@ -252,12 +263,18 @@
 						pane.x += x;
 						pane.w -= d;
 
+						pane.prev = divider;
+						newPane.next = divider;
+
 						divider.prev = newPane;
 						divider.next = pane;
 					} else {
 						newPane.x = x;
 						newPane.w = pane.w - d;
 						pane.w  = d;
+
+						pane.next = divider;
+						newPane.prev = divider;
 
 						divider.prev = pane;
 						divider.next = newPane;
