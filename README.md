@@ -1,4 +1,4 @@
-# svelte-subdivide
+# svelte-subdivide ([demo](https://svelte.technology/repl?version=2.6.3&gist=972edea66f74521601771be19e192c72))
 
 A component for building Blender-style layouts in Svelte apps.
 
