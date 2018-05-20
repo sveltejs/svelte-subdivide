@@ -317,6 +317,83 @@ test('preserves correct pane/divider relationships', t => {
 	layout.destroy();
 });
 
+test.only('preserves correct pane/divider relationships', t => {
+	const layout = init();
+	const { container } = layout.refs;
+
+	const { left, top, right, bottom } = container.getBoundingClientRect();
+	const width = right - left;
+	const height = bottom - top;
+	const cx = left + width / 2;
+	const cy = top + height / 2;
+
+	let pane = document.querySelector('.pane');
+
+	// split from the left edge
+	mousedown(pane, 5, 100, true);
+	mouseup(container, 700, 100);
+
+	// split from the new split
+	mousedown(pane, 695, 100, true);
+	mouseup(container, 300, 100);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="layout">
+			<div class="pane" style="left: 70%; top: 0%; width: 30%; height: 100%;">
+				<span>1</span>
+			</div>
+
+			<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%;">
+				<span>2</span>
+			</div>
+
+			<div class="pane" style="left: 30%; top: 0%; width: 40%; height: 100%;">
+				<span>3</span>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 70%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 30%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+		</div>
+	`);
+
+	// now, check that dragging the leftmost vertical slider updates the
+	// layout how we expect
+	let divider = target.querySelectorAll('.divider')[0];
+	mousedown(divider, 700, 500);
+	mouseup(container, 500, 500);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="layout">
+			<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%;">
+				<span>1</span>
+			</div>
+
+			<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%;">
+				<span>2</span>
+			</div>
+
+			<div class="pane" style="left: 30%; top: 0%; width: 20%; height: 100%;">
+				<span>3</span>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 50%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+
+			<div class="divider" style="top: 0%; left: 30%; height: 100%;">
+				<div class="draggable"></div>
+			</div>
+		</div>
+	`);
+
+	layout.destroy();
+});
+
 // TODO destroying panes
 // TODO save to localStorage
 // TODO customise divider size
