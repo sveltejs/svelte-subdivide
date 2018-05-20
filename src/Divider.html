@@ -28,9 +28,9 @@
 				const group = divider.parent;
 
 				if (divider.direction === constants.HORIZONTAL) {
-					return `left: ${group.left * 100}%; top: ${divider.position * 100}%; width: ${group.getWidth() * 100}%`;
+					return `left: ${group.getLeft() * 100}%; top: ${divider.position * 100}%; width: ${group.getWidth() * 100}%`;
 				} else {
-					return `top: ${group.top * 100}%; left: ${divider.position * 100}%; height: ${group.getHeight() * 100}%`;
+					return `top: ${group.getTop() * 100}%; left: ${divider.position * 100}%; height: ${group.getHeight() * 100}%`;
 				}
 			}
 		}

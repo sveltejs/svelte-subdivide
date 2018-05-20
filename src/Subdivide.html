@@ -41,11 +41,14 @@
 		}
 
 		bounds(rect) {
+			const width = rect.right - rect.left;
+			const height = rect.bottom - rect.top;
+
 			return {
-				left: rect.left * this.getLeft(),
-				top: rect.top * this.getTop(),
-				width: (rect.right - rect.left) * this.getWidth(),
-				height: (rect.bottom - rect.top) * this.getHeight()
+				left: rect.left + width * this.getLeft(),
+				top: rect.top + height * this.getTop(),
+				width: width * this.getWidth(),
+				height: height * this.getHeight()
 			};
 		}
 
@@ -121,7 +124,11 @@
 			const index = this.children.indexOf(child);
 			if (index === -1) throw new Error(`Unexpected error`);
 			this.children[index] = replacement;
+
 			replacement.parent = this;
+
+			child.parent = replacement;
+			replacement.children.push(child);
 		}
 	}
 
@@ -195,15 +202,14 @@
 					pane.x = pane.y = 0;
 					pane.w = pane.h = 1;
 
-					if (pane.parent) pane.parent.replaceChild(pane, newGroup);
+					pane.parent.replaceChild(pane, newGroup);
 					group = newGroup;
 				}
 
 				const bounds = group.bounds(this.refs.container.getBoundingClientRect());
 
 				const newPane = new Pane(_pid++, pane);
-
-				pane.parent = newPane.parent = group;
+				group.addChild(newPane);
 
 				const divider = new Divider({
 					id: _did++,
@@ -258,8 +264,6 @@
 					}
 				}
 
-				group.addChild(newPane);
-
 				_panes.push(newPane);
 				_dividers.push(divider);
 
@@ -281,8 +285,6 @@
 				const prev = _dragging.prev;
 				const next = _dragging.next;
 
-				console.log({ prev, next });
-
 				let position;
 
 				if (_dragging.direction === constants.VERTICAL) {
@@ -299,8 +301,6 @@
 
 					prev.setRange(min, position);
 					next.setRange(position, max);
-
-					console.log({ prev, next });
 				}
 
 				_dragging.position = position;
