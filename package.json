@@ -16,7 +16,7 @@
   "devDependencies": {
     "port-authority": "^1.0.3",
     "puppeteer": "^1.2.0",
-    "rollup": "^0.58.2",
+    "rollup": "^0.59.1",
     "rollup-plugin-commonjs": "^9.1.0",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-svelte": "^4.1.0",
