@@ -2,6 +2,9 @@
 
 A component for building Blender-style layouts in Svelte apps.
 
+![subdivide-2](https://user-images.githubusercontent.com/1162160/40279920-696b12e6-5c19-11e8-8861-6bdb071441d5.gif)
+
+
 ## Installation
 
 ```bash
@@ -53,6 +56,11 @@ The component constructor you supply to `<Subdivide>` will be instantiated for e
 If you're using webpack with [svelte-loader](https://github.com/sveltejs/svelte-loader), make sure that you add `"svelte"` to [`resolve.mainFields`](https://webpack.js.org/configuration/resolve/#resolve-mainfields) in your webpack config. This ensures that webpack imports the uncompiled component (`src/index.html`) rather than the compiled version (`index.mjs`) — this is more efficient.
 
 If you're using Rollup with [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte), this will happen automatically.
+
+
+## Credits
+
+Essential inspiration was provided by [philholden/subdivide](https://github.com/philholden/subdivide) — thanks Phil!
 
 
 ## License
