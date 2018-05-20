@@ -302,23 +302,22 @@
 				const prev = _dragging.prev;
 				const next = _dragging.next;
 
+				let min;
+				let max;
 				let position;
 
 				if (_dragging.direction === constants.VERTICAL) {
-					const min = prev.x;
-					const max = next.x + next.w;
+					min = prev.x;
+					max = next.x + next.w;
 					position = clamp((event.clientX - bounds.left) / bounds.width, min, max);
-
-					prev.setRange(min, position);
-					next.setRange(position, max);
 				} else {
-					const min = prev.y;
-					const max = next.y + next.h;
+					min = prev.y;
+					max = next.y + next.h;
 					position = clamp((event.clientY - bounds.top) / bounds.height, min, max);
-
-					prev.setRange(min, position);
-					next.setRange(position, max);
 				}
+
+				prev.setRange(min, position);
+				next.setRange(position, max);
 
 				_dragging.position = position;
 
