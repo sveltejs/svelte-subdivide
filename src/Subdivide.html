@@ -11,7 +11,7 @@
 	{/each}
 
 	{#each _dividers as divider (divider.id)}
-		<Divider {divider} on:mousedown="set({ _dragging: !event.metaKey && divider })"/>
+		<Divider {divider} on:mousedown="set({ _dragging: !event.ctrlKey && !event.metaKey && divider })"/>
 	{/each}
 </div>
 
