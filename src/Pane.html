@@ -37,7 +37,7 @@
 	export default {
 		methods: {
 			handleMousedown(node, event) {
-				if (!event.metaKey) return;
+				if (!event.ctrlKey && !event.metaKey) return;
 
 				const { top, right, bottom, left } = node.getBoundingClientRect();
 				const { items } = this.get();
