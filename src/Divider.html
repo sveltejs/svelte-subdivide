@@ -1,21 +1,38 @@
-<div class="divider" {style} on:mousedown>
-	<div class="draggable"></div>
-</div>
+<div class="{type} divider" {style} on:mousedown/>
 
 <style>
 	.divider {
 		position: absolute;
 		width: 0;
 		height: 0;
+		pointer-events: all;
 	}
 
-	.draggable {
+	.divider::after {
+		content: '';
 		position: absolute;
-		left: calc(0px - var(--spacing) / 2);
-		top: calc(0px - var(--spacing) / 2);
-		width: calc(100% + var(--spacing));
-		height: calc(100% + var(--spacing));
-		background-color: none;
+		left: calc(0px - var(--draggable));
+		top: calc(0px - var(--draggable));
+		width: calc(100% + var(--draggable) * 2);
+		height: calc(100% + var(--draggable) * 2);
+	}
+
+	.horizontal {
+		cursor: row-resize;
+	}
+
+	.vertical {
+		cursor: col-resize;
+	}
+
+	.divider::before {
+		content: '';
+		position: absolute;
+		left: calc(0px - var(--thickness) / 2);
+		top: calc(0px - var(--thickness) / 2);
+		width: calc(100% + var(--thickness));
+		height: calc(100% + var(--thickness));
+		background-color: var(--color);
 	}
 </style>
 
@@ -24,6 +41,12 @@
 
 	export default {
 		computed: {
+			type: ({ divider }) => {
+				return divider.direction === constants.HORIZONTAL
+					? 'horizontal'
+					: 'vertical';
+			},
+
 			style: ({ divider }) => {
 				const group = divider.parent;
 
