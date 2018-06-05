@@ -1,27 +1,38 @@
-<div
-	ref:container
-	class="layout"
-	on:mousemove="drag(event)"
-	on:mouseup="end(event)"
-	on:mouseleave="end(event)"
-	style="--spacing: {spacing}"
->
-	{#each _panes as pane (pane.id)}
-		<Pane {pane} {component} on:split="split(pane, event)"/>
-	{/each}
+<div class="clip">
+	<div
+		ref:container
+		class="layout"
+		on:mousemove="drag(event)"
+		on:mouseup="end(event)"
+		on:mouseleave="end(event)"
+		style="--thickness: {thickness}; --draggable: calc({thickness} + {padding}); --color: {color}"
+	>
+		{#each _panes as pane (pane.id)}
+			<Pane {pane} {component} on:split="split(pane, event)"/>
+		{/each}
 
-	{#each _dividers as divider (divider.id)}
-		<Divider {divider} on:mousedown="set({ _dragging: !event.metaKey && divider })"/>
-	{/each}
+		{#each _dividers as divider (divider.id)}
+			<Divider {divider} on:mousedown="set({ _dragging: divider })"/>
+		{/each}
+	</div>
 </div>
 
 <style>
+	.clip {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+	}
+
 	.layout {
 		position: absolute;
-		width: calc(100% + var(--spacing));
-		height: calc(100% + var(--spacing));
+		width: calc(100% + var(--thickness));
+		height: calc(100% + var(--thickness));
 		overflow: hidden;
-		margin: calc(0px - var(--spacing) / 2);
+		margin: calc(0px - var(--thickness) / 2);
 	}
 </style>
 
@@ -195,7 +206,9 @@
 			root.addChild(pane);
 
 			return {
-				spacing: '6px',
+				thickness: '1px',
+				padding: '6px',
+				color: 'white',
 				_pid: 1,
 				_did: 0,
 				_panes: [pane],
