@@ -34,10 +34,16 @@
 
 	const THRESHOLD = 100;
 
+	const isMac = navigator.platform === 'MacIntel';
+
+	function wasCmdOrCtrlPressed(event) {
+		return isMac ? event.metaKey : event.ctrlKey;
+	}
+
 	export default {
 		methods: {
 			handleMousedown(node, event) {
-				if (!event.metaKey) return;
+				if (!wasCmdOrCtrlPressed(event)) return;
 
 				const { top, right, bottom, left } = node.getBoundingClientRect();
 				const { items } = this.get();
