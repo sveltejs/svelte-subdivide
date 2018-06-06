@@ -6,5 +6,6 @@ env:
   global:
     - BUILD_TIMEOUT=10000
 
-install:
-  - apt install xsel
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y xsel
