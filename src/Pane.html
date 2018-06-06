@@ -1,12 +1,15 @@
 <div
+	ref:pane
 	class="pane"
 	style="
 		left: {pane.getLeft() * 100}%;
 		top: {pane.getTop() * 100}%;
 		width: {pane.getWidth() * 100}%;
 		height: {pane.getHeight() * 100}%;
+		cursor: {cursor}
 	"
 	on:mousedown="handleMousedown(this, event)"
+	on:mousemove="handleMousemove(this, event)"
 >
 	<div class="inner">
 		<svelte:component this={component} {pane}/>
@@ -34,19 +37,28 @@
 
 	const THRESHOLD = 100;
 
-	const isMac = navigator.platform === 'MacIntel';
-
 	function wasCmdOrCtrlPressed(event) {
-		return isMac ? event.metaKey : event.ctrlKey;
+		return constants.IS_MAC ? event.metaKey : event.ctrlKey;
 	}
 
 	export default {
-		methods: {
-			handleMousedown(node, event) {
-				if (!wasCmdOrCtrlPressed(event)) return;
+		computed: {
+			cursor: ({ keyPressed, edge }) => {
+				if (!keyPressed || !edge) return 'default';
 
-				const { top, right, bottom, left } = node.getBoundingClientRect();
-				const { items } = this.get();
+				return (
+					edge === constants.NORTH ? 's-resize' :
+					edge === constants.SOUTH ? 'n-resize' :
+					edge === constants.WEST ? 'e-resize' :
+					edge === constants.EAST ? 'w-resize' :
+					'default'
+				);
+			}
+		},
+
+		methods: {
+			findEdge(event) {
+				const { top, right, bottom, left } = this.refs.pane.getBoundingClientRect();
 
 				const d = [
 					[constants.NORTH, event.clientY - top],
@@ -55,15 +67,29 @@
 					[constants.WEST, event.clientX -left]
 				];
 
-				if (d[0][1] > THRESHOLD && d[1][1] > THRESHOLD && d[2][1] > THRESHOLD && d[3][1] > THRESHOLD) return;
+				if (d[0][1] > THRESHOLD && d[1][1] > THRESHOLD && d[2][1] > THRESHOLD && d[3][1] > THRESHOLD) return null;
 
 				d.sort((a, b) => a[1] - b[1]);
 
+				return d[0][0];
+			},
+
+			handleMousedown(node, event) {
+				if (!wasCmdOrCtrlPressed(event)) return;
+
+				const edge = this.findEdge(event);
+				if (!edge) return;
+
 				this.fire('split', {
-					edge: d[0][0],
+					edge,
 					clientX: event.clientX,
 					clientY: event.clientY
 				});
+			},
+
+			handleMousemove(node, event) {
+				const edge = this.findEdge(event);
+				this.set({ edge });
 			}
 		}
 	};
