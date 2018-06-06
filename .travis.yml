@@ -5,3 +5,7 @@ node_js:
 env:
   global:
     - BUILD_TIMEOUT=10000
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y xsel
