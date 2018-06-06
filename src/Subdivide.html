@@ -2,9 +2,6 @@
 	<div
 		ref:container
 		class="layout"
-		on:mousemove="drag(event)"
-		on:mouseup="end(event)"
-		on:mouseleave="end(event)"
 		style="--thickness: {thickness}; --draggable: calc({thickness} + {padding}); --color: {color}"
 	>
 		{#each _panes as pane (pane.id)}
@@ -12,19 +9,44 @@
 		{/each}
 
 		{#each _dividers as divider (divider.id)}
-			<Divider {divider} on:mousedown="set({ _dragging: divider })"/>
+			<Divider {divider} on:mousedown="start(divider)"/>
 		{/each}
+
+		{#if _dragging}
+			<div
+				class="overlay {_dragging.type}"
+				on:mousemove="drag(event)"
+				on:mouseup="end(event)"
+				on:mouseleave="end(event)"
+			></div>
+		{/if}
 	</div>
 </div>
 
 <style>
-	.clip {
-		position: absolute;
+	.clip, .overlay {
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
+	}
+
+	.clip {
+		position: absolute;
 		overflow: hidden;
+	}
+
+	.overlay {
+		position: fixed;
+		z-index: 2147483647;
+	}
+
+	.overlay.vertical {
+		cursor: col-resize;
+	}
+
+	.overlay.horizontal {
+		cursor: row-resize;
 	}
 
 	.layout {
@@ -160,9 +182,9 @@
 	}
 
 	class Divider {
-		constructor({ id, direction, group, position, prev, next }) {
+		constructor({ id, type, group, position, prev, next }) {
 			this.id = id;
-			this.direction = direction;
+			this.type = type;
 			this.parent = group;
 			this.position = position;
 			this.prev = prev;
@@ -222,19 +244,19 @@
 				let { _pid, _did, _panes, _dividers } = this.get();
 				const { edge, clientX, clientY } = event;
 
-				const direction = edge === constants.NORTH || edge === constants.SOUTH
-					? constants.HORIZONTAL
-					: constants.VERTICAL;
+				const dividerType = edge === constants.NORTH || edge === constants.SOUTH
+					? 'horizontal'
+					: 'vertical';
 
-				const type = direction === constants.HORIZONTAL
+				const groupType = dividerType === 'horizontal'
 					? constants.COLUMN
 					: constants.ROW;
 
 				let group = pane.parent;
 
-				const newGroup = group && group.type === type
+				const newGroup = group && group.type === groupType
 					? null
-					: new Group(type, pane);
+					: new Group(groupType, pane);
 
 				if (newGroup) {
 					pane.x = pane.y = 0;
@@ -256,14 +278,14 @@
 
 				const divider = new Divider({
 					id: _did++,
-					direction,
+					type: dividerType,
 					group,
 					position: null,
 					prev: null,
 					next: null
 				});
 
-				if (type === constants.COLUMN) {
+				if (groupType === constants.COLUMN) {
 					const y = (clientY - bounds.top) / bounds.height;
 					const d = y - pane.y;
 
@@ -323,11 +345,21 @@
 					_dividers,
 					_dragging: divider
 				});
+
+				this._userSelect = document.body.style.userSelect;
+				document.body.style.userSelect = 'none';
+			},
+
+			start(divider) {
+				this._userSelect = document.body.style.userSelect;
+				document.body.style.userSelect = 'none';
+
+				this.set({ _dragging: divider });
 			},
 
 			drag(event) {
 				const { _panes, _dividers, _dragging } = this.get();
-				if (!_dragging) return
+				if (!_dragging) return;
 
 				const bounds = _dragging.parent.bounds(this.refs.container.getBoundingClientRect());
 
@@ -338,7 +370,7 @@
 				let max;
 				let position;
 
-				if (_dragging.direction === constants.VERTICAL) {
+				if (_dragging.type === 'vertical') {
 					min = prev.x;
 					max = next.x + next.w;
 					position = clamp((event.clientX - bounds.left) / bounds.width, min, max);
@@ -362,11 +394,11 @@
 
 				this.drag(event);
 
-				const prevSize = _dragging.direction === constants.VERTICAL
+				const prevSize = _dragging.type === 'vertical'
 					? _dragging.prev.w
 					: _dragging.prev.h;
 
-				const min = Math.min(prevSize, _dragging.direction === constants.VERTICAL
+				const min = Math.min(prevSize, _dragging.type === 'vertical'
 					? _dragging.next.w
 					: _dragging.next.h)
 
@@ -398,6 +430,7 @@
 				}
 
 				this.set({ _panes, _dividers, _dragging: false });
+				document.body.style.userSelect = this._userSelect;
 			}
 		}
 	};

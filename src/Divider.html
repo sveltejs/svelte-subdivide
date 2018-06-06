@@ -1,4 +1,4 @@
-<div class="{type} divider" {style} on:mousedown/>
+<div class="{divider.type} divider" {style} on:mousedown/>
 
 <style>
 	.divider {
@@ -41,12 +41,6 @@
 
 	export default {
 		computed: {
-			type: ({ divider }) => {
-				return divider.direction === constants.HORIZONTAL
-					? 'horizontal'
-					: 'vertical';
-			},
-
 			style: ({ divider }) => {
 				const group = divider.parent;
 
@@ -55,7 +49,7 @@
 				const w = group.getWidth();
 				const h = group.getHeight();
 
-				if (divider.direction === constants.HORIZONTAL) {
+				if (divider.type === 'horizontal') {
 					return `left: ${x * 100}%; top: ${(y + divider.position * h) * 100}%; width: ${w * 100}%`;
 				} else {
 					return `top: ${y * 100}%; left: ${(x + divider.position * w) * 100}%; height: ${h * 100}%`;
