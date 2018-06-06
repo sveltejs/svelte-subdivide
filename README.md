@@ -55,10 +55,19 @@ Note that this component uses CSS variables, and may therefore behave strangely 
 
 ## Parameters
 
-You can specify a `spacing` parameter that controls the width of the dividers. It can be any CSS length:
+You can specify the following parameters:
+
+* `thickness` — the thickness of the divider, as a CSS length. Defaults to zero
+* `padding` — the amount of space either side of the divider that will respond to mouse events. Larger values make it easier to resize panes, but makes it harder to split them. Defaults to 6px
+* `color` — the color of the divider, if `thickness` is larger than zero. Defaults to white
 
 ```html
-<Subdivide component={Pane} spacing="0.5em"/>
+<Subdivide
+  component={Pane}
+  thickness="1px"
+  padding="4px"
+  color="black"
+/>
 ```
 
 
