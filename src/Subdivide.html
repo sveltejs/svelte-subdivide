@@ -1,3 +1,5 @@
+<svelte:window on:keydown="handleKeydown(event)" on:keyup="set({ keyPressed: false })"/>
+
 <div class="clip">
 	<div
 		ref:container
@@ -5,7 +7,7 @@
 		style="--thickness: {thickness}; --draggable: calc({thickness} + {padding}); --color: {color}"
 	>
 		{#each _panes as pane (pane.id)}
-			<Pane {pane} {component} on:split="split(pane, event)"/>
+			<Pane {keyPressed} {pane} {component} on:split="split(pane, event)"/>
 		{/each}
 
 		{#each _dividers as divider (divider.id)}
@@ -431,6 +433,12 @@
 
 				this.set({ _panes, _dividers, _dragging: false });
 				document.body.style.userSelect = this._userSelect;
+			},
+
+			handleKeydown(event) {
+				this.set({
+					keyPressed: event.which === constants.KEYCODE
+				});
 			}
 		}
 	};
