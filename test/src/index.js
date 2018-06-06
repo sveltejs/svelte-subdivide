@@ -126,7 +126,7 @@ test('creates a new pane', t => {
 	const pane = document.querySelector('.pane');
 
 	mousedown(pane, 5, 100, true);
-	mouseup(container, 200, 100);
+	mouseup(document.querySelector('.overlay'), 200, 100);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
@@ -165,19 +165,19 @@ test('preserves correct pane/divider relationships (a)', t => {
 
 	// split from the left edge
 	mousedown(pane, 5, 100, true);
-	mouseup(container, 200, 100);
+	mouseup(document.querySelector('.overlay'), 200, 100);
 
 	// split from the right edge
 	mousedown(pane, 995, 100, true);
-	mouseup(container, 800, 100);
+	mouseup(document.querySelector('.overlay'), 800, 100);
 
 	// split from the top middle
 	mousedown(pane, 500, 5, true);
-	mouseup(container, 500, 500);
+	mouseup(document.querySelector('.overlay'), 500, 500);
 
 	// split the lower middle chunk from the left
 	mousedown(pane, 205, 750, true);
-	mouseup(container, 500, 750);
+	mouseup(document.querySelector('.overlay'), 500, 750);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
@@ -224,7 +224,7 @@ test('preserves correct pane/divider relationships (a)', t => {
 	// layout how we expect
 	let divider = target.querySelectorAll('.divider')[0];
 	mousedown(divider, 200, 500);
-	mouseup(container, 100, 500);
+	mouseup(document.querySelector('.overlay'), 100, 500);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
@@ -270,12 +270,12 @@ test('preserves correct pane/divider relationships (a)', t => {
 	// split the top middle pane
 	pane = target.querySelectorAll('.pane')[3];
 	mousedown(pane, 105, 250, true);
-	mouseup(container, 500, 250);
+	mouseup(document.querySelector('.overlay'), 500, 250);
 
 	// drag the rightmost vertical divider
 	divider = target.querySelectorAll('.divider')[1];
 	mousedown(divider, 800, 500);
-	mouseup(container, 900, 500);
+	mouseup(document.querySelector('.overlay'), 900, 500);
 
 	// TODO tweak the numbers so we get nice round (testable) numbers
 	// t.htmlEqual(target.innerHTML, `
@@ -345,12 +345,12 @@ test('preserves correct pane/divider relationships (b)', t => {
 
 	// split from the left edge
 	mousedown(pane, 5, 100, true);
-	mouseup(container, 700, 100);
+	mouseup(document.querySelector('.overlay'), 700, 100);
 
 	// split from the new split
 	pane = target.querySelectorAll('.pane')[1];
 	mousedown(pane, 695, 100, true);
-	mouseup(container, 300, 100);
+	mouseup(document.querySelector('.overlay'), 300, 100);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
@@ -383,7 +383,7 @@ test('preserves correct pane/divider relationships (b)', t => {
 	// layout how we expect
 	let divider = target.querySelectorAll('.divider')[0];
 	mousedown(divider, 700, 500);
-	mouseup(container, 500, 500);
+	mouseup(document.querySelector('.overlay'), 500, 500);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
@@ -422,7 +422,7 @@ test('destroys panes', t => {
 	const pane = document.querySelector('.pane');
 
 	mousedown(pane, 5, 100, true);
-	mouseup(container, 200, 100);
+	mouseup(document.querySelector('.overlay'), 200, 100);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
@@ -447,7 +447,7 @@ test('destroys panes', t => {
 	let divider = target.querySelector('.divider');
 
 	mousedown(divider, 200, 500);
-	mouseup(container, 1001, 500);
+	mouseup(document.querySelector('.overlay'), 1001, 500);
 
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
