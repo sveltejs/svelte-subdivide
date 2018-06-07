@@ -415,6 +415,83 @@ test('preserves correct pane/divider relationships (b)', t => {
 	layout.destroy();
 });
 
+test('preserves correct pane/divider relationships (c)', t => {
+	const layout = init();
+
+	let pane = document.querySelector('.pane');
+
+	// split from the left edge
+	mousedown(pane, 5, 100, true);
+	mouseup(document.querySelector('.overlay'), 250, 100);
+
+	// split from the new split
+	pane = target.querySelectorAll('.pane')[0];
+	mousedown(pane, 255, 100, true);
+	mouseup(document.querySelector('.overlay'), 500, 100);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="clip">
+			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
+				<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>0</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 0%; top: 0%; width: 25%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>1</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 25%; top: 0%; width: 25%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>2</span>
+					</div>
+				</div>
+
+				<div class="vertical divider" style="top: 0%; left: 25%; height: 100%;"></div>
+				<div class="vertical divider" style="top: 0%; left: 50%; height: 100%;"></div>
+			</div>
+		</div>
+	`);
+
+	// now, check that dragging the leftmost vertical slider updates the
+	// layout how we expect
+	let divider = target.querySelectorAll('.divider')[0];
+	mousedown(divider, 250, 500);
+	mouseup(document.querySelector('.overlay'), 350, 500);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="clip">
+			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
+				<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>0</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 0%; top: 0%; width: 35%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>1</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 35%; top: 0%; width: 15%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>2</span>
+					</div>
+				</div>
+
+				<div class="vertical divider" style="top: 0%; left: 35%; height: 100%;"></div>
+				<div class="vertical divider" style="top: 0%; left: 50%; height: 100%;"></div>
+			</div>
+		</div>
+	`);
+
+	layout.destroy();
+});
+
 test('destroys panes', t => {
 	const layout = init();
 
