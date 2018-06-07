@@ -298,7 +298,7 @@
 
 					if (edge === constants.NORTH) {
 						newPane.h = d;
-						pane.y += y;
+						pane.y = y;
 						pane.h -= d;
 					} else {
 						newPane.y = y;
@@ -313,7 +313,7 @@
 
 					if (edge === constants.WEST) {
 						newPane.w = d;
-						pane.x += x;
+						pane.x = x;
 						pane.w -= d;
 					} else {
 						newPane.x = x;
