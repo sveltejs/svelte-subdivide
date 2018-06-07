@@ -42,9 +42,13 @@
 	}
 
 	export default {
+		data() {
+			return { edge: null };
+		},
+
 		computed: {
-			cursor: ({ keyPressed, edge }) => {
-				if (!keyPressed || !edge) return 'default';
+			cursor: ({ _keyPressed, edge }) => {
+				if (!_keyPressed || !edge) return 'default';
 
 				return (
 					edge === constants.NORTH ? 's-resize' :

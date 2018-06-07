@@ -1,4 +1,4 @@
-<svelte:window on:keydown="handleKeydown(event)" on:keyup="set({ keyPressed: false })"/>
+<svelte:window on:keydown="handleKeydown(event)" on:keyup="set({ _keyPressed: false })"/>
 
 <div class="clip">
 	<div
@@ -7,7 +7,7 @@
 		style="--thickness: {thickness}; --draggable: calc({thickness} + {padding}); --color: {color}"
 	>
 		{#each _panes as pane (pane.id)}
-			<Pane {keyPressed} {pane} {component} on:split="split(pane, event)"/>
+			<Pane {_keyPressed} {pane} {component} on:split="split(pane, event)"/>
 		{/each}
 
 		{#each _dividers as divider (divider.id)}
@@ -233,10 +233,13 @@
 				thickness: '1px',
 				padding: '6px',
 				color: 'white',
+
 				_pid: 1,
 				_did: 0,
 				_panes: [pane],
-				_dividers: []
+				_dividers: [],
+				_dragging: null,
+				_keyPressed: false
 			};
 		},
 
@@ -320,21 +323,21 @@
 				}
 
 				if (edge === constants.NORTH || edge === constants.WEST) {
+					if (pane.prev) pane.prev.next = newPane;
+
 					pane.prev = divider;
 					newPane.next = divider;
-
-					if (pane.prev) pane.prev.next = newPane;
 
 					divider.prev = newPane;
 					divider.next = pane;
 				} else {
-					divider.prev = pane;
-					divider.next = newPane;
-
 					if (pane.next) pane.next.prev = newPane;
 
 					pane.next = divider;
 					newPane.prev = divider;
+
+					divider.prev = pane;
+					divider.next = newPane;
 				}
 
 				_panes.push(newPane);
@@ -437,7 +440,7 @@
 
 			handleKeydown(event) {
 				this.set({
-					keyPressed: event.which === constants.KEYCODE
+					_keyPressed: event.which === constants.KEYCODE
 				});
 			}
 		}
