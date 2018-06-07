@@ -107,7 +107,7 @@ test('creates a single pane element that fills the target', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>0</span>
 					</div>
@@ -131,13 +131,13 @@ test('creates a new pane', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 20%; top: 0%; width: 80%; height: 100%;">
+				<div class="pane" style="left: 20%; top: 0%; width: 80%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>0</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>1</span>
 					</div>
@@ -182,31 +182,31 @@ test('preserves correct pane/divider relationships (a)', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 50%; top: 50%; width: 30%; height: 50%;">
+				<div class="pane" style="left: 50%; top: 50%; width: 30%; height: 50%; cursor: default;">
 					<div class="inner">
 						<span>0</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>1</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 80%; top: 0%; width: 20%; height: 100%;">
+				<div class="pane" style="left: 80%; top: 0%; width: 20%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>2</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 20%; top: 0%; width: 60%; height: 50%;">
+				<div class="pane" style="left: 20%; top: 0%; width: 60%; height: 50%; cursor: default;">
 					<div class="inner">
 						<span>3</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 20%; top: 50%; width: 30%; height: 50%;">
+				<div class="pane" style="left: 20%; top: 50%; width: 30%; height: 50%; cursor: default;">
 					<div class="inner">
 						<span>4</span>
 					</div>
@@ -229,31 +229,31 @@ test('preserves correct pane/divider relationships (a)', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 45%; top: 50%; width: 35%; height: 50%;">
+				<div class="pane" style="left: 45%; top: 50%; width: 35%; height: 50%; cursor: default;">
 					<div class="inner">
 						<span>0</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 0%; top: 0%; width: 10%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 10%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>1</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 80%; top: 0%; width: 20%; height: 100%;">
+				<div class="pane" style="left: 80%; top: 0%; width: 20%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>2</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 10%; top: 0%; width: 70%; height: 50%;">
+				<div class="pane" style="left: 10%; top: 0%; width: 70%; height: 50%; cursor: default;">
 					<div class="inner">
 						<span>3</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 10%; top: 50%; width: 35%; height: 50%;">
+				<div class="pane" style="left: 10%; top: 50%; width: 35%; height: 50%; cursor: default;">
 					<div class="inner">
 						<span>4</span>
 					</div>
@@ -280,37 +280,37 @@ test('preserves correct pane/divider relationships (a)', t => {
 	// TODO tweak the numbers so we get nice round (testable) numbers
 	// t.htmlEqual(target.innerHTML, `
 	// 	<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-	// 		<div class="pane" style="left: 50%; top: 50%; width: 40%; height: 50%;">
+	// 		<div class="pane" style="left: 50%; top: 50%; width: 40%; height: 50%; cursor: default;">
 	// 			<div class="inner">
 	// 				<span>0</span>
 	// 			</div>
 	// 		</div>
 
-	// 		<div class="pane" style="left: 0%; top: 0%; width: 10%; height: 100%;">
+	// 		<div class="pane" style="left: 0%; top: 0%; width: 10%; height: 100%; cursor: default;">
 	// 			<div class="inner">
 	// 				<span>1</span>
 	// 			</div>
 	// 		</div>
 
-	// 		<div class="pane" style="left: 90%; top: 0%; width: 10%; height: 100%;">
+	// 		<div class="pane" style="left: 90%; top: 0%; width: 10%; height: 100%; cursor: default;">
 	// 			<div class="inner">
 	// 				<span>2</span>
 	// 			</div>
 	// 		</div>
 
-	// 		<div class="pane" style="left: 55%; top: 0%; width: 35%; height: 50%;">
+	// 		<div class="pane" style="left: 55%; top: 0%; width: 35%; height: 50%; cursor: default;">
 	// 			<div class="inner">
 	// 				<span>3</span>
 	// 			</div>
 	// 		</div>
 
-	// 		<div class="pane" style="left: 10%; top: 50%; width: 40%; height: 50%;">
+	// 		<div class="pane" style="left: 10%; top: 50%; width: 40%; height: 50%; cursor: default;">
 	// 			<div class="inner">
 	// 				<span>4</span>
 	// 			</div>
 	// 		</div>
 
-	// 		<div class="pane" style="left: 10%; top: 0%; width: 45%; height: 50%;">
+	// 		<div class="pane" style="left: 10%; top: 0%; width: 45%; height: 50%; cursor: default;">
 	// 			<div class="inner">
 	// 				<span>5</span>
 	// 			</div>
@@ -355,19 +355,19 @@ test('preserves correct pane/divider relationships (b)', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 70%; top: 0%; width: 30%; height: 100%;">
+				<div class="pane" style="left: 70%; top: 0%; width: 30%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>0</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>1</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 30%; top: 0%; width: 40%; height: 100%;">
+				<div class="pane" style="left: 30%; top: 0%; width: 40%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>2</span>
 					</div>
@@ -388,19 +388,19 @@ test('preserves correct pane/divider relationships (b)', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%;">
+				<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>0</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 30%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>1</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 30%; top: 0%; width: 20%; height: 100%;">
+				<div class="pane" style="left: 30%; top: 0%; width: 20%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>2</span>
 					</div>
@@ -408,6 +408,83 @@ test('preserves correct pane/divider relationships (b)', t => {
 
 				<div class="vertical divider" style="top: 0%; left: 50%; height: 100%;"></div>
 				<div class="vertical divider" style="top: 0%; left: 30%; height: 100%;"></div>
+			</div>
+		</div>
+	`);
+
+	layout.destroy();
+});
+
+test('preserves correct pane/divider relationships (c)', t => {
+	const layout = init();
+
+	let pane = document.querySelector('.pane');
+
+	// split from the left edge
+	mousedown(pane, 5, 100, true);
+	mouseup(document.querySelector('.overlay'), 250, 100);
+
+	// split from the new split
+	pane = target.querySelectorAll('.pane')[0];
+	mousedown(pane, 255, 100, true);
+	mouseup(document.querySelector('.overlay'), 500, 100);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="clip">
+			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
+				<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>0</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 0%; top: 0%; width: 25%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>1</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 25%; top: 0%; width: 25%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>2</span>
+					</div>
+				</div>
+
+				<div class="vertical divider" style="top: 0%; left: 25%; height: 100%;"></div>
+				<div class="vertical divider" style="top: 0%; left: 50%; height: 100%;"></div>
+			</div>
+		</div>
+	`);
+
+	// now, check that dragging the leftmost vertical slider updates the
+	// layout how we expect
+	let divider = target.querySelectorAll('.divider')[0];
+	mousedown(divider, 250, 500);
+	mouseup(document.querySelector('.overlay'), 350, 500);
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="clip">
+			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
+				<div class="pane" style="left: 50%; top: 0%; width: 50%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>0</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 0%; top: 0%; width: 35%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>1</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 35%; top: 0%; width: 15%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>2</span>
+					</div>
+				</div>
+
+				<div class="vertical divider" style="top: 0%; left: 35%; height: 100%;"></div>
+				<div class="vertical divider" style="top: 0%; left: 50%; height: 100%;"></div>
 			</div>
 		</div>
 	`);
@@ -427,13 +504,13 @@ test('destroys panes', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 20%; top: 0%; width: 80%; height: 100%;">
+				<div class="pane" style="left: 20%; top: 0%; width: 80%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>0</span>
 					</div>
 				</div>
 
-				<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>1</span>
 					</div>
@@ -452,7 +529,7 @@ test('destroys panes', t => {
 	t.htmlEqual(target.innerHTML, `
 		<div class="clip">
 			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
-				<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 100%;">
+				<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 100%; cursor: default;">
 					<div class="inner">
 						<span>1</span>
 					</div>
