@@ -88,7 +88,19 @@ function mouseup(node, clientX, clientY) {
 
 function init() {
 	const Item = svelte.create(`
-		<span>{pane.id}</span>
+		<span>{index}</span>
+
+		<script>
+			let index = 0;
+
+			export default {
+				data() {
+					return {
+						index: index++
+					};
+				}
+			};
+		</script>
 	`);
 
 	return new Subdivide({
