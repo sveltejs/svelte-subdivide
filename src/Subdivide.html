@@ -65,7 +65,8 @@
 	import { removeFromArray, clamp } from './utils.js';
 
 	class Rect {
-		constructor(x, y, w, h, prev, next) {
+		constructor(id, x, y, w, h, prev, next) {
+			this.id = id;
 			this.x = x;
 			this.y = y;
 			this.w = w;
@@ -138,7 +139,7 @@
 
 	class Pane extends Rect {
 		constructor(id, { x, y, w, h, prev, next }) {
-			super(x, y, w, h, prev, next);
+			super(id, x, y, w, h, prev, next);
 			this.id = id;
 		}
 
@@ -147,11 +148,24 @@
 			if (index === -1) throw new Error(`Unexpected error`);
 			panes.splice(index, 1);
 		}
+
+		toJSON() {
+			return {
+				id: this.id,
+				type: 'pane',
+				x: this.x,
+				y: this.y,
+				w: this.w,
+				h: this.h,
+				prev: this.prev && this.prev.id,
+				next: this.next && this.next.id
+			};
+		}
 	}
 
 	class Group extends Rect {
-		constructor(type, { x, y, w, h, prev, next }) {
-			super(x, y, w, h, prev, next);
+		constructor(id, type, { x, y, w, h, prev, next }) {
+			super(id, x, y, w, h, prev, next);
 
 			this.type = type;
 			this.children = [];
@@ -181,6 +195,21 @@
 			i = this.dividers.length;
 			while (i--) this.dividers[i].destroy(panes, dividers);
 		}
+
+		toJSON() {
+			return {
+				id: this.id,
+				type: 'group',
+				direction: this.type, // TODO confusing
+				x: this.x,
+				y: this.y,
+				w: this.w,
+				h: this.h,
+				prev: this.prev && this.prev.id,
+				next: this.next && this.next.id,
+				children: this.children.map(child => child.toJSON())
+			};
+		}
 	}
 
 	class Divider {
@@ -202,6 +231,32 @@
 		}
 	}
 
+	const defaultLayout = {
+		root: {
+			id: 0,
+			type: 'group',
+			direction: constants.COLUMN,
+			x: 0,
+			y: 0,
+			w: 1,
+			h: 1,
+			prev: null,
+			next: null,
+			children: [
+				{
+					type: 'pane',
+					id: 1,
+					x: 0,
+					y: 0,
+					w: 1,
+					h: 1,
+					prev: null,
+					next: null
+				}
+			]
+		}
+	};
+
 	export default {
 		components: {
 			Pane: './Pane.html',
@@ -209,41 +264,121 @@
 		},
 
 		data() {
-			const root = new Group(constants.COLUMN, {
-				x: 0,
-				y: 0,
-				w: 1,
-				h: 1,
-				prev: null,
-				next: null
-			});
-
-			const pane = new Pane(0, {
-				x: 0,
-				y: 0,
-				w: 1,
-				h:1,
-				prev: null,
-				next: null
-			});
-
-			root.addChild(pane);
-
 			return {
 				thickness: '1px',
 				padding: '6px',
 				color: 'white',
+				layout: defaultLayout,
 
 				_pid: 1,
 				_did: 0,
-				_panes: [pane],
+				_panes: [],
 				_dividers: [],
 				_dragging: null,
 				_keyPressed: false
 			};
 		},
 
+		onstate({ changed, current }) {
+			if (this.updating) return;
+
+			if (changed.layout) {
+				let { _did } = this.get();
+
+				const panes = [];
+				const dividers = [];
+
+				const lookup = {};
+				let maxid = 0;
+
+				const createGroup = data => {
+					const group = new Group(data.id, data.direction, {
+						x: data.x,
+						y: data.y,
+						w: data.w,
+						h: data.h,
+						prev: null,
+						next: null
+					});
+
+					lookup[data.id] = group;
+
+					let lastChild = null;
+
+					data.children.sort((a, b) => {
+						if (group.type === constants.COLUMN) return a.y - b.y;
+						return a.x - b.x;
+					}).forEach((data, i) => {
+						let child;
+
+						if (data.id > maxid) maxid = data.id;
+
+						if (data.type === 'group') {
+							child = createGroup(data);
+						} else {
+							child = new Pane(data.id, {
+								x: data.x,
+								y: data.y,
+								w: data.w,
+								h: data.h,
+								prev: null,
+								next: null
+							});
+
+							lookup[data.id] = child;
+							panes.push(child);
+						}
+
+						group.addChild(child);
+
+						if (i > 0) {
+							child.prev = lastChild;
+							lastChild.next = child;
+
+							const dividerType = group.type === constants.COLUMN ? 'horizontal' : 'vertical';
+
+							const divider = new Divider({
+								id: _did++,
+								type: dividerType,
+								group,
+								position: dividerType === 'horizontal' ? child.y : child.x,
+								prev: lastChild,
+								next: child
+							});
+
+							dividers.push(divider);
+						}
+
+						lastChild = child;
+					});
+
+					return group;
+				};
+
+				const root = createGroup(current.layout ? current.layout.root : defaultLayout.root);
+
+				this.set({
+					_pid: maxid + 1,
+					_did,
+					_root: root,
+					_panes: panes,
+					_dividers: dividers
+				});
+			}
+		},
+
 		methods: {
+			updateLayout() {
+				const { _root } = this.get();
+				const layout = {
+					root: _root.toJSON()
+				};
+
+				this.updating = true;
+				this.set({ layout });
+				this.updating = false;
+			},
+
 			split(pane, event) {
 				const { left, right, top, bottom } = this.refs.container.getBoundingClientRect();
 				let { _pid, _did, _panes, _dividers } = this.get();
@@ -261,7 +396,7 @@
 
 				const newGroup = group && group.type === groupType
 					? null
-					: new Group(groupType, pane);
+					: new Group(_pid++, groupType, pane);
 
 				if (newGroup) {
 					pane.x = pane.y = 0;
@@ -353,6 +488,8 @@
 
 				this._userSelect = document.body.style.userSelect;
 				document.body.style.userSelect = 'none';
+
+				this.updateLayout();
 			},
 
 			start(divider) {
@@ -436,6 +573,8 @@
 
 				this.set({ _panes, _dividers, _dragging: false });
 				document.body.style.userSelect = this._userSelect;
+
+				this.updateLayout();
 			},
 
 			handleKeydown(event) {
