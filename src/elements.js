@@ -63,12 +63,12 @@ class Rect {
 	}
 
 	setRange(a, b) {
-		if (this.parent.type === constants.COLUMN) {
-			this.y = a;
-			this.h = (b - a);
-		} else {
+		if (this.parent.row) {
 			this.x = a;
 			this.w = (b - a);
+		} else {
+			this.y = a;
+			this.h = (b - a);
 		}
 	}
 }
@@ -100,10 +100,11 @@ export class Pane extends Rect {
 }
 
 export class Group extends Rect {
-	constructor(id, type, { x, y, w, h, prev, next }) {
+	constructor(id, row, { x, y, w, h, prev, next }) {
 		super(id, x, y, w, h, prev, next);
 
-		this.type = type;
+		this.row = row;
+		this.type = row ? 'ROW' : 'COLUMN';
 		this.children = [];
 		this.dividers = [];
 	}
@@ -136,7 +137,7 @@ export class Group extends Rect {
 		return {
 			id: this.id,
 			type: 'group',
-			direction: this.type, // TODO confusing
+			row: this.row,
 			x: this.x,
 			y: this.y,
 			w: this.w,

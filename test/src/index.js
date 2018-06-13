@@ -559,7 +559,7 @@ test('accepts a layout', t => {
 		root: {
 			id: 0,
 			type: 'group',
-			direction: 'COLUMN',
+			row: false,
 			x: 0,
 			y: 0,
 			w: 1,

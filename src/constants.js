@@ -6,8 +6,5 @@ export const WEST = 'WEST';
 export const HORIZONTAL = 'HORIZONTAL';
 export const VERTICAL = 'VERTICAL';
 
-export const COLUMN = 'COLUMN';
-export const ROW = 'ROW';
-
 export const IS_MAC = navigator.platform === 'MacIntel';
 export const KEYCODE = IS_MAC ? 91 : 17; // Cmd : Ctrl

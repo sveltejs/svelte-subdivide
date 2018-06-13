@@ -69,7 +69,7 @@
 		root: {
 			id: 0,
 			type: 'group',
-			direction: constants.COLUMN,
+			row: false,
 			x: 0,
 			y: 0,
 			w: 1,
@@ -126,7 +126,7 @@
 				let maxid = 0;
 
 				const createGroup = data => {
-					const group = new Group(data.id, data.direction, {
+					const group = new Group(data.id, data.row, {
 						x: data.x,
 						y: data.y,
 						w: data.w,
@@ -140,8 +140,8 @@
 					let lastChild = null;
 
 					data.children.sort((a, b) => {
-						if (group.type === constants.COLUMN) return a.y - b.y;
-						return a.x - b.x;
+						if (group.row) return a.x - b.x;
+						return a.y - b.y;
 					}).forEach((data, i) => {
 						let child;
 
@@ -169,7 +169,7 @@
 							child.prev = lastChild;
 							lastChild.next = child;
 
-							const dividerType = group.type === constants.COLUMN ? 'horizontal' : 'vertical';
+							const dividerType = group.row ? 'vertical' : 'horizontal';
 
 							const divider = new Divider({
 								id: _did++,
@@ -222,15 +222,13 @@
 					? 'horizontal'
 					: 'vertical';
 
-				const groupType = dividerType === 'horizontal'
-					? constants.COLUMN
-					: constants.ROW;
+				const childGroupIsRow = dividerType === 'vertical';
 
 				let group = pane.parent;
 
-				const newGroup = group && group.type === groupType
+				const newGroup = group && group.row === childGroupIsRow
 					? null
-					: new Group(_pid++, groupType, pane);
+					: new Group(_pid++, childGroupIsRow, pane);
 
 				if (newGroup) {
 					pane.x = pane.y = 0;
@@ -259,22 +257,7 @@
 					next: null
 				});
 
-				if (groupType === constants.COLUMN) {
-					const y = (clientY - bounds.top) / bounds.height;
-					const d = y - pane.y;
-
-					divider.position = y;
-
-					if (edge === constants.NORTH) {
-						newPane.h = d;
-						pane.y = y;
-						pane.h -= d;
-					} else {
-						newPane.y = y;
-						newPane.h = pane.h - d;
-						pane.h  = d;
-					}
-				} else {
+				if (childGroupIsRow) {
 					const x = (clientX - bounds.left) / bounds.width;
 					const d = x - pane.x;
 
@@ -288,6 +271,21 @@
 						newPane.x = x;
 						newPane.w = pane.w - d;
 						pane.w  = d;
+					}
+				} else {
+					const y = (clientY - bounds.top) / bounds.height;
+					const d = y - pane.y;
+
+					divider.position = y;
+
+					if (edge === constants.NORTH) {
+						newPane.h = d;
+						pane.y = y;
+						pane.h -= d;
+					} else {
+						newPane.y = y;
+						newPane.h = pane.h - d;
+						pane.h  = d;
 					}
 				}
 
