@@ -62,145 +62,34 @@
 
 <script>
 	import * as constants from './constants.js';
+	import { Pane, Group, Divider } from './elements.js';
 	import { removeFromArray, clamp } from './utils.js';
 
-	class Rect {
-		constructor(x, y, w, h, prev, next) {
-			this.x = x;
-			this.y = y;
-			this.w = w;
-			this.h = h;
-
-			this.prev = prev;
-			this.next = next;
-
-			this.parent = null;
+	const defaultLayout = {
+		root: {
+			id: 0,
+			type: 'group',
+			direction: constants.COLUMN,
+			x: 0,
+			y: 0,
+			w: 1,
+			h: 1,
+			prev: null,
+			next: null,
+			children: [
+				{
+					type: 'pane',
+					id: 1,
+					x: 0,
+					y: 0,
+					w: 1,
+					h: 1,
+					prev: null,
+					next: null
+				}
+			]
 		}
-
-		bounds(rect) {
-			const width = rect.right - rect.left;
-			const height = rect.bottom - rect.top;
-
-			return {
-				left: rect.left + width * this.getLeft(),
-				top: rect.top + height * this.getTop(),
-				width: width * this.getWidth(),
-				height: height * this.getHeight()
-			};
-		}
-
-		getLeft() {
-			let left = this.x;
-
-			let node = this;
-			while (node = node.parent) left = node.x + (node.w * left);
-
-			return left;
-		}
-
-		getTop() {
-			let top = this.y;
-
-			let node = this;
-			while (node = node.parent) top = node.y + (node.h * top);
-
-			return top;
-		}
-
-		getWidth() {
-			let width = this.w;
-
-			let node = this;
-			while (node = node.parent) width *= node.w;
-
-			return width;
-		}
-
-		getHeight() {
-			let height = this.h;
-
-			let node = this;
-			while (node = node.parent) height *= node.h;
-
-			return height;
-		}
-
-		setRange(a, b) {
-			if (this.parent.type === constants.COLUMN) {
-				this.y = a;
-				this.h = (b - a);
-			} else {
-				this.x = a;
-				this.w = (b - a);
-			}
-		}
-	}
-
-	class Pane extends Rect {
-		constructor(id, { x, y, w, h, prev, next }) {
-			super(x, y, w, h, prev, next);
-			this.id = id;
-		}
-
-		destroy(panes, dividers) {
-			const index = panes.indexOf(this);
-			if (index === -1) throw new Error(`Unexpected error`);
-			panes.splice(index, 1);
-		}
-	}
-
-	class Group extends Rect {
-		constructor(type, { x, y, w, h, prev, next }) {
-			super(x, y, w, h, prev, next);
-
-			this.type = type;
-			this.children = [];
-			this.dividers = [];
-		}
-
-		addChild(child) {
-			this.children.push(child);
-			child.parent = this;
-		}
-
-		replaceChild(child, replacement) {
-			const index = this.children.indexOf(child);
-			if (index === -1) throw new Error(`Unexpected error`);
-			this.children[index] = replacement;
-
-			replacement.parent = this;
-
-			child.parent = replacement;
-			replacement.children.push(child);
-		}
-
-		destroy(panes, dividers) {
-			let i = this.children.length;
-			while (i--) this.children[i].destroy(panes, dividers);
-
-			i = this.dividers.length;
-			while (i--) this.dividers[i].destroy(panes, dividers);
-		}
-	}
-
-	class Divider {
-		constructor({ id, type, group, position, prev, next }) {
-			this.id = id;
-			this.type = type;
-			this.parent = group;
-			this.position = position;
-			this.prev = prev;
-			this.next = next;
-
-			group.dividers.push(this);
-		}
-
-		destroy(panes, dividers) {
-			const index = dividers.indexOf(this);
-			if (index === -1) throw new Error(`Unexpected error`);
-			dividers.splice(index, 1);
-		}
-	}
+	};
 
 	export default {
 		components: {
@@ -209,41 +98,121 @@
 		},
 
 		data() {
-			const root = new Group(constants.COLUMN, {
-				x: 0,
-				y: 0,
-				w: 1,
-				h: 1,
-				prev: null,
-				next: null
-			});
-
-			const pane = new Pane(0, {
-				x: 0,
-				y: 0,
-				w: 1,
-				h:1,
-				prev: null,
-				next: null
-			});
-
-			root.addChild(pane);
-
 			return {
 				thickness: '1px',
 				padding: '6px',
 				color: 'white',
+				layout: defaultLayout,
 
 				_pid: 1,
 				_did: 0,
-				_panes: [pane],
+				_panes: [],
 				_dividers: [],
 				_dragging: null,
 				_keyPressed: false
 			};
 		},
 
+		onstate({ changed, current }) {
+			if (this.updating) return;
+
+			if (changed.layout) {
+				let { _did } = this.get();
+
+				const panes = [];
+				const dividers = [];
+
+				const lookup = {};
+				let maxid = 0;
+
+				const createGroup = data => {
+					const group = new Group(data.id, data.direction, {
+						x: data.x,
+						y: data.y,
+						w: data.w,
+						h: data.h,
+						prev: null,
+						next: null
+					});
+
+					lookup[data.id] = group;
+
+					let lastChild = null;
+
+					data.children.sort((a, b) => {
+						if (group.type === constants.COLUMN) return a.y - b.y;
+						return a.x - b.x;
+					}).forEach((data, i) => {
+						let child;
+
+						if (data.id > maxid) maxid = data.id;
+
+						if (data.type === 'group') {
+							child = createGroup(data);
+						} else {
+							child = new Pane(data.id, {
+								x: data.x,
+								y: data.y,
+								w: data.w,
+								h: data.h,
+								prev: null,
+								next: null
+							});
+
+							lookup[data.id] = child;
+							panes.push(child);
+						}
+
+						group.addChild(child);
+
+						if (i > 0) {
+							child.prev = lastChild;
+							lastChild.next = child;
+
+							const dividerType = group.type === constants.COLUMN ? 'horizontal' : 'vertical';
+
+							const divider = new Divider({
+								id: _did++,
+								type: dividerType,
+								group,
+								position: dividerType === 'horizontal' ? child.y : child.x,
+								prev: lastChild,
+								next: child
+							});
+
+							dividers.push(divider);
+						}
+
+						lastChild = child;
+					});
+
+					return group;
+				};
+
+				const root = createGroup(current.layout ? current.layout.root : defaultLayout.root);
+
+				this.set({
+					_pid: maxid + 1,
+					_did,
+					_root: root,
+					_panes: panes,
+					_dividers: dividers
+				});
+			}
+		},
+
 		methods: {
+			updateLayout() {
+				const { _root } = this.get();
+				const layout = {
+					root: _root.toJSON()
+				};
+
+				this.updating = true;
+				this.set({ layout });
+				this.updating = false;
+			},
+
 			split(pane, event) {
 				const { left, right, top, bottom } = this.refs.container.getBoundingClientRect();
 				let { _pid, _did, _panes, _dividers } = this.get();
@@ -261,7 +230,7 @@
 
 				const newGroup = group && group.type === groupType
 					? null
-					: new Group(groupType, pane);
+					: new Group(_pid++, groupType, pane);
 
 				if (newGroup) {
 					pane.x = pane.y = 0;
@@ -353,6 +322,8 @@
 
 				this._userSelect = document.body.style.userSelect;
 				document.body.style.userSelect = 'none';
+
+				this.updateLayout();
 			},
 
 			start(divider) {
@@ -436,6 +407,8 @@
 
 				this.set({ _panes, _dividers, _dragging: false });
 				document.body.style.userSelect = this._userSelect;
+
+				this.updateLayout();
 			},
 
 			handleKeydown(event) {
