@@ -86,7 +86,7 @@ function mouseup(node, clientX, clientY) {
 	}));
 }
 
-function init() {
+function init(layout) {
 	const Item = svelte.create(`
 		<span>{index}</span>
 
@@ -107,7 +107,8 @@ function init() {
 		target,
 		data: {
 			component: Item,
-			thickness: '0px'
+			thickness: '0px',
+			layout
 		}
 	});
 }
@@ -546,6 +547,66 @@ test('destroys panes', t => {
 						<span>1</span>
 					</div>
 				</div>
+			</div>
+		</div>
+	`);
+
+	layout.destroy();
+});
+
+test('accepts a layout', t => {
+	const layout = init({
+		root: {
+			id: 0,
+			type: 'group',
+			direction: 'COLUMN',
+			x: 0,
+			y: 0,
+			w: 1,
+			h: 1,
+			prev: null,
+			next: null,
+			children: [
+				{
+					type: 'pane',
+					id: 1,
+					x: 0,
+					y: 0,
+					w: 1,
+					h: 0.5,
+					prev: null,
+					next: null
+				},
+				{
+					type: 'pane',
+					id: 1,
+					x: 0,
+					y: 0.5,
+					w: 1,
+					h: 0.5,
+					prev: null,
+					next: null
+				}
+			]
+		}
+	});
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="clip">
+			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
+				<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 50%; cursor: default;">
+					<div class="inner">
+						<span>1</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 0%; top: 50%; width: 100%; height: 50%; cursor: default;">
+					<div class="inner">
+						<span>0</span>
+					</div>
+				</div>
+
+				<div class="horizontal divider" style="left: 0%; top: 50%; width: 100%;"></div>
 			</div>
 		</div>
 	`);
