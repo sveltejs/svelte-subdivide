@@ -1,5 +1,10 @@
 # svelte-subdivide changelog
 
+## 2.1.0
+
+* Expose `layout` property for implementing save and restore ([#17](https://github.com/sveltejs/svelte-subdivide/pull/17))
+* Use unique IDs, rather than sequential ones ([#19](https://github.com/sveltejs/svelte-subdivide/pull/19))
+
 ## 2.0.0
 
 * Replace `spacing` parameter with `thickness` and `padding`

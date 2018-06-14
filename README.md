@@ -71,6 +71,37 @@ You can specify the following parameters:
 ```
 
 
+## Save/restore
+
+You can also specify a `layout` parameter, to implement save and restore:
+
+```html
+<Subdivide bind:layout/>
+
+<script>
+  import Subdivide from '@sveltejs/svelte-subdivide';
+  import Item from './Item.html';
+
+  export default {
+    components: {
+      Subdivide
+    },
+
+    data() {
+      return {
+        Item,
+        layout: localStorage.layout && JSON.parse(localStorage.layout)
+      };
+    },
+
+    onstate({ changed, current }) {
+      if (changed.layout) localStorage.layout = JSON.stringify(current.layout);
+    }
+  };
+</script>
+```
+
+
 ## Configuring webpack
 
 If you're using webpack with [svelte-loader](https://github.com/sveltejs/svelte-loader), make sure that you add `"svelte"` to [`resolve.mainFields`](https://webpack.js.org/configuration/resolve/#resolve-mainfields) in your webpack config. This ensures that webpack imports the uncompiled component (`src/index.html`) rather than the compiled version (`index.mjs`) — this is more efficient.
