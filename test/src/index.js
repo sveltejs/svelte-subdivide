@@ -608,6 +608,74 @@ test('accepts a layout', t => {
 	layout.destroy();
 });
 
+test('fires open/close/layout events', t => {
+	const layout = init();
+
+	const events = {
+		open: [],
+		close: [],
+		layout: []
+	};
+
+	Object.keys(events).forEach(name => {
+		layout.on(name, event => {
+			events[name].push(event);
+		});
+	});
+
+	const pane = document.querySelector('.pane');
+
+	mousedown(pane, 5, 100, true);
+	mouseup(document.querySelector('.overlay'), 200, 100);
+
+	t.equal(events.open.length, 1);
+	const open = events.open[0];
+	t.ok('pane' in open);
+	t.ok('layout' in open);
+	t.ok('id' in open.pane);
+
+	t.equal(events.layout.length, 2);
+	const layout0 = events.layout[0];
+	t.equal(JSON.stringify(open.layout), JSON.stringify(layout0.layout));
+
+	t.htmlEqual(target.innerHTML, `
+		<div class="clip">
+			<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
+				<div class="pane" style="left: 20%; top: 0%; width: 80%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>0</span>
+					</div>
+				</div>
+
+				<div class="pane" style="left: 0%; top: 0%; width: 20%; height: 100%; cursor: default;">
+					<div class="inner">
+						<span>1</span>
+					</div>
+				</div>
+
+				<div class="vertical divider" style="top: 0%; left: 20%; height: 100%;"></div>
+			</div>
+		</div>
+	`);
+
+	const divider = document.querySelector('.divider');
+
+	mousedown(divider, 200, 100);
+	mouseup(document.querySelector('.overlay'), 0, 100);
+
+	t.equal(events.close.length, 1);
+	const close = events.close[0];
+	t.ok('pane' in close);
+	t.ok('layout' in close);
+	t.ok('id' in close.pane);
+
+	t.equal(events.layout.length, 3);
+	const layout2 = events.layout[2];
+	t.equal(JSON.stringify(close.layout), JSON.stringify(layout2.layout));
+
+	layout.destroy();
+});
+
 // TODO save to localStorage
 
 // this allows us to close puppeteer once tests have completed
