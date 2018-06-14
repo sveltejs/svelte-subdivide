@@ -202,6 +202,7 @@
 
 				this.updating = true;
 				this.set({ layout });
+				this.fire('layout', { layout });
 				this.updating = false;
 			},
 
@@ -297,6 +298,9 @@
 				document.body.style.userSelect = 'none';
 
 				this._updateLayout();
+
+				const { layout } = this.get();
+				this.fire('open', { pane: newPane, layout });
 			},
 
 			_start(divider) {
@@ -326,7 +330,9 @@
 
 				_dragging.position = position;
 
-				this.set({ _panes, _dividers });
+				const _closing = position === min || position === max;
+
+				this.set({ _panes, _dividers, _closing });
 			},
 
 			_end(event) {
@@ -338,33 +344,32 @@
 				const prevSize = _dragging.prev.size;
 
 				const min = Math.min(prevSize, _dragging.next.size);
+				let destroyed;
 
-				if (min < 0.0001) {
+				if (min <= 0) {
 					removeFromArray(_dragging.parent.dividers, _dragging);
 					removeFromArray(_dividers, _dragging);
 
-					if (prevSize < 0.0001) {
+					destroyed = prevSize <= 0
+						? _dragging.prev
+						: _dragging.next;
+
+					if (prevSize <= 0) {
 						const mergedDivider = _dragging.prev.prev;
 
 						_dragging.next.prev = mergedDivider;
 						if (mergedDivider) mergedDivider.next = _dragging.next;
-
-						_dragging.prev.destroy(_panes, _dividers);
-						_ids.delete(_dragging.prev.id);
-						if (_dragging.prev.parent) {
-							removeFromArray(_dragging.prev.parent.children, _dragging.prev);
-						}
 					} else {
 						const mergedDivider = _dragging.next.next;
 
 						_dragging.prev.next = mergedDivider;
 						if (mergedDivider) mergedDivider.prev = _dragging.prev;
+					}
 
-						_dragging.next.destroy(_panes, _dividers);
-						_ids.delete(_dragging.next.id);
-						if (_dragging.next.parent) {
-							removeFromArray(_dragging.next.parent.children, _dragging.next);
-						}
+					destroyed.destroy(_panes, _dividers);
+					_ids.delete(destroyed.id);
+					if (destroyed.parent) {
+						removeFromArray(destroyed.parent.children, destroyed);
 					}
 				}
 
@@ -372,6 +377,11 @@
 				document.body.style.userSelect = this._userSelect;
 
 				this._updateLayout();
+
+				if (destroyed) {
+					const { layout } = this.get();
+					this.fire('close', { pane: destroyed, layout });
+				}
 			},
 
 			_handleKeydown(event) {

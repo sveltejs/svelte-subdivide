@@ -102,6 +102,20 @@ You can also specify a `layout` parameter, to implement save and restore:
 ```
 
 
+## Events
+
+You can listen for `open`, `close` and `layout` events. Each event is an object with a `layout` property and, in the case of `open` and `close`, a `pane` property indicating which pane was opened or closed.
+
+```html
+<Subdivide
+  component={Pane}
+  on:open="console.log(`opened ${event.pane.id}`)"
+  on:close="console.log(`closed ${event.pane.id}`)"
+  on:layout="console.log(`updated layout`)"
+/>
+```
+
+
 ## Configuring webpack
 
 If you're using webpack with [svelte-loader](https://github.com/sveltejs/svelte-loader), make sure that you add `"svelte"` to [`resolve.mainFields`](https://webpack.js.org/configuration/resolve/#resolve-mainfields) in your webpack config. This ensures that webpack imports the uncompiled component (`src/index.html`) rather than the compiled version (`index.mjs`) — this is more efficient.
