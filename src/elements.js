@@ -1,6 +1,5 @@
 class Rect {
-	constructor(id, pos, size, prev, next) {
-		this.id = id;
+	constructor(pos, size, prev, next) {
 		this.pos = pos;
 		this.size = size;
 
@@ -70,7 +69,7 @@ class Rect {
 
 export class Pane extends Rect {
 	constructor(id, { pos, size, prev, next }) {
-		super(id, pos, size, prev, next);
+		super(pos, size, prev, next);
 		this.id = id;
 	}
 
@@ -93,8 +92,8 @@ export class Pane extends Rect {
 }
 
 export class Group extends Rect {
-	constructor(id, row, { pos, size, prev, next }) {
-		super(id, pos, size, prev, next);
+	constructor(row, { pos, size, prev, next }) {
+		super(pos, size, prev, next);
 
 		this.row = row;
 		this.children = [];
@@ -127,7 +126,6 @@ export class Group extends Rect {
 
 	toJSON() {
 		return {
-			id: this.id,
 			type: 'group',
 			row: this.row,
 			pos: this.pos,

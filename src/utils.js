@@ -9,3 +9,7 @@ export function removeFromArray(array, item) {
 	if (index === -1) throw new Error('Unexpected error');
 	array.splice(index, 1);
 }
+
+export function getId() {
+	return Math.random().toString(36).slice(2);
+}
