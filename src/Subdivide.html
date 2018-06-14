@@ -1,4 +1,4 @@
-<svelte:window on:keydown="handleKeydown(event)" on:keyup="set({ _keyPressed: false })"/>
+<svelte:window on:keydown="_handleKeydown(event)" on:keyup="set({ _keyPressed: false })"/>
 
 <div class="clip">
 	<div
@@ -7,19 +7,19 @@
 		style="--thickness: {thickness}; --draggable: calc({thickness} + {padding}); --color: {color}"
 	>
 		{#each _panes as pane (pane.id)}
-			<Pane {_keyPressed} {pane} {component} on:split="split(pane, event)"/>
+			<Pane {_keyPressed} {pane} {component} on:split="_split(pane, event)"/>
 		{/each}
 
 		{#each _dividers as divider (divider.id)}
-			<Divider {divider} on:mousedown="start(divider)"/>
+			<Divider {divider} on:mousedown="_start(divider)"/>
 		{/each}
 
 		{#if _dragging}
 			<div
 				class="overlay {_dragging.type}"
-				on:mousemove="drag(event)"
-				on:mouseup="end(event)"
-				on:mouseleave="end(event)"
+				on:mousemove="_drag(event)"
+				on:mouseup="_end(event)"
+				on:mouseleave="_end(event)"
 			></div>
 		{/if}
 	</div>
@@ -63,7 +63,7 @@
 <script>
 	import * as constants from './constants.js';
 	import { Pane, Group, Divider } from './elements.js';
-	import { removeFromArray, clamp } from './utils.js';
+	import { removeFromArray, clamp, getId } from './utils.js';
 
 	const defaultLayout = {
 		root: {
@@ -76,7 +76,7 @@
 			children: [
 				{
 					type: 'pane',
-					id: 1,
+					id: getId(),
 					pos: 0,
 					size: 1,
 					prev: null,
@@ -99,8 +99,8 @@
 				color: 'white',
 				layout: defaultLayout,
 
-				_pid: 1,
 				_did: 0,
+				_ids: new Set(),
 				_panes: [],
 				_dividers: [],
 				_dragging: null,
@@ -112,12 +112,10 @@
 			if (this.updating) return;
 
 			if (changed.layout) {
-				let { _did } = this.get();
+				let { _ids, _did } = this.get();
 
 				const panes = [];
 				const dividers = [];
-
-				let maxid = 0;
 
 				const createGroup = data => {
 					const group = new Group(data.row, {
@@ -132,8 +130,6 @@
 					data.children.sort((a, b) => a.pos - b.pos).forEach((data, i) => {
 						let child;
 
-						if (data.id > maxid) maxid = data.id;
-
 						if (data.type === 'group') {
 							child = createGroup(data);
 						} else {
@@ -144,6 +140,7 @@
 								next: null
 							});
 
+							_ids.add(data.id);
 							panes.push(child);
 						}
 
@@ -176,8 +173,8 @@
 				const root = createGroup(current.layout ? current.layout.root : defaultLayout.root);
 
 				this.set({
-					_pid: maxid + 1,
 					_did,
+					_ids,
 					_root: root,
 					_panes: panes,
 					_dividers: dividers
@@ -186,7 +183,18 @@
 		},
 
 		methods: {
-			updateLayout() {
+			_getId() {
+				const { _ids } = this.get();
+				while (true) {
+					const id = getId();
+					if (!_ids.has(id)) {
+						_ids.add(id);
+						return id;
+					}
+				}
+			},
+
+			_updateLayout() {
 				const { _root } = this.get();
 				const layout = {
 					root: _root.toJSON()
@@ -197,9 +205,9 @@
 				this.updating = false;
 			},
 
-			split(pane, event) {
+			_split(pane, event) {
 				const { left, right, top, bottom } = this.refs.container.getBoundingClientRect();
-				let { _pid, _did, _panes, _dividers } = this.get();
+				let { _did, _panes, _dividers } = this.get();
 				const { edge, clientX, clientY } = event;
 
 				const dividerType = edge === constants.NORTH || edge === constants.SOUTH
@@ -229,7 +237,7 @@
 
 				const bounds = group.bounds(this.refs.container.getBoundingClientRect());
 
-				const newPane = new Pane(_pid++, pane);
+				const newPane = new Pane(this._getId(), pane);
 				group.addChild(newPane);
 
 				const divider = new Divider({
@@ -279,7 +287,6 @@
 				_dividers.push(divider);
 
 				this.set({
-					_pid,
 					_did,
 					_panes,
 					_dividers,
@@ -289,17 +296,17 @@
 				this._userSelect = document.body.style.userSelect;
 				document.body.style.userSelect = 'none';
 
-				this.updateLayout();
+				this._updateLayout();
 			},
 
-			start(divider) {
+			_start(divider) {
 				this._userSelect = document.body.style.userSelect;
 				document.body.style.userSelect = 'none';
 
 				this.set({ _dragging: divider });
 			},
 
-			drag(event) {
+			_drag(event) {
 				const { _panes, _dividers, _dragging } = this.get();
 				if (!_dragging) return;
 
@@ -322,11 +329,11 @@
 				this.set({ _panes, _dividers });
 			},
 
-			end(event) {
-				const { _panes, _dividers, _dragging } = this.get();
+			_end(event) {
+				const { _ids, _panes, _dividers, _dragging } = this.get();
 				if (!_dragging) return;
 
-				this.drag(event);
+				this._drag(event);
 
 				const prevSize = _dragging.prev.size;
 
@@ -343,6 +350,7 @@
 						if (mergedDivider) mergedDivider.next = _dragging.next;
 
 						_dragging.prev.destroy(_panes, _dividers);
+						_ids.delete(_dragging.prev.id);
 						if (_dragging.prev.parent) {
 							removeFromArray(_dragging.prev.parent.children, _dragging.prev);
 						}
@@ -353,6 +361,7 @@
 						if (mergedDivider) mergedDivider.prev = _dragging.prev;
 
 						_dragging.next.destroy(_panes, _dividers);
+						_ids.delete(_dragging.next.id);
 						if (_dragging.next.parent) {
 							removeFromArray(_dragging.next.parent.children, _dragging.next);
 						}
@@ -362,10 +371,10 @@
 				this.set({ _panes, _dividers, _dragging: false });
 				document.body.style.userSelect = this._userSelect;
 
-				this.updateLayout();
+				this._updateLayout();
 			},
 
-			handleKeydown(event) {
+			_handleKeydown(event) {
 				this.set({
 					_keyPressed: event.which === constants.KEYCODE
 				});
