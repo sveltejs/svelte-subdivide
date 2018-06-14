@@ -310,22 +310,14 @@
 
 				const bounds = _dragging.parent.bounds(this.refs.container.getBoundingClientRect());
 
-				const prev = _dragging.prev;
-				const next = _dragging.next;
+				const { prev, next } = _dragging;
 
-				let min;
-				let max;
-				let position;
+				const min = prev.pos;
+				const max = next.pos + next.size;
 
-				if (_dragging.type === 'vertical') {
-					min = prev.pos;
-					max = next.pos + next.size;
-					position = clamp((event.clientX - bounds.left) / bounds.width, min, max);
-				} else {
-					min = prev.pos;
-					max = next.pos + next.size;
-					position = clamp((event.clientY - bounds.top) / bounds.height, min, max);
-				}
+				const position = _dragging.type === 'vertical'
+					? clamp((event.clientX - bounds.left) / bounds.width, min, max)
+					: clamp((event.clientY - bounds.top) / bounds.height, min, max);
 
 				prev.setRange(min, position);
 				next.setRange(position, max);
