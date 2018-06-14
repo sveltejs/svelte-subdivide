@@ -133,9 +133,7 @@
 
 					let lastChild = null;
 
-					data.children.sort((a, b) => {
-						return a.pos - b.pos;
-					}).forEach((data, i) => {
+					data.children.sort((a, b) => a.pos - b.pos).forEach((data, i) => {
 						let child;
 
 						if (data.id > maxid) maxid = data.id;
@@ -248,39 +246,19 @@
 					next: null
 				});
 
-				if (childGroupIsRow) {
-					const x = (clientX - bounds.left) / bounds.width;
-					const d = x - pane.pos;
+				const pos = childGroupIsRow
+					? (clientX - bounds.left) / bounds.width
+					: (clientY - bounds.top) / bounds.height;
 
-					divider.position = x;
+				const d = pos - pane.pos;
 
-					if (edge === constants.WEST) {
-						newPane.size = d;
-						pane.pos = x;
-						pane.size -= d;
-					} else {
-						newPane.pos = x;
-						newPane.size = pane.size - d;
-						pane.size  = d;
-					}
-				} else {
-					const y = (clientY - bounds.top) / bounds.height;
-					const d = y - pane.pos;
-
-					divider.position = y;
-
-					if (edge === constants.NORTH) {
-						newPane.h = d;
-						pane.y = y;
-						pane.h -= d;
-					} else {
-						newPane.y = y;
-						newPane.h = pane.h - d;
-						pane.h  = d;
-					}
-				}
+				divider.position = pos;
 
 				if (edge === constants.NORTH || edge === constants.WEST) {
+					newPane.size = d;
+					pane.pos = pos;
+					pane.size -= d;
+
 					if (pane.prev) pane.prev.next = newPane;
 
 					pane.prev = divider;
@@ -289,6 +267,10 @@
 					divider.prev = newPane;
 					divider.next = pane;
 				} else {
+					newPane.pos = pos;
+					newPane.size = pane.size - d;
+					pane.size = d;
+
 					if (pane.next) pane.next.prev = newPane;
 
 					pane.next = divider;
