@@ -1,5 +1,10 @@
 # svelte-subdivide changelog
 
+## 2.2.0
+
+* Fire `open`, `close` and `layout` events ([#20](https://github.com/sveltejs/svelte-subdivide/issues/20))
+* Indicate when pane will be closed via custom cursor
+
 ## 2.1.0
 
 * Expose `layout` property for implementing save and restore ([#17](https://github.com/sveltejs/svelte-subdivide/pull/17))
