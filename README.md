@@ -76,7 +76,7 @@ You can specify the following parameters:
 You can also specify a `layout` parameter, to implement save and restore:
 
 ```html
-<Subdivide bind:layout/>
+<Subdivide bind:layout component={Item}/>
 
 <script>
   import Subdivide from '@sveltejs/svelte-subdivide';
