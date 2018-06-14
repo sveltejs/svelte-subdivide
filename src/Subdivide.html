@@ -16,7 +16,7 @@
 
 		{#if _dragging}
 			<div
-				class="overlay {_dragging.type}"
+				class="overlay {_dragging.type} {_closing ? 'closing' : ''}"
 				on:mousemove="_drag(event)"
 				on:mouseup="_end(event)"
 				on:mouseleave="_end(event)"
@@ -49,6 +49,10 @@
 
 	.overlay.horizontal {
 		cursor: row-resize;
+	}
+
+	.overlay.closing {
+		cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAABYUlEQVR4AWP4//8/Bj548CCTvr7+BBYWlm+MjIz/QJiDg+NVQkJCDEgeG8YqGBcXF8XExPRXTU2tCWhICtCQFGVl5ZVAg3/W19fLYtODrFnby8vLGYSlpKRWc3JyPvH19XV2dXV1dnNzA+FIkMtMTEyqYOpaW1slMQxiZ2d/DVJICpaWll6JYpCwsPAToMRfUg1iY2P7Jioq+ghukIiISImkpORMkCTQW01Ag0tBWEZGpkxFRaUKGFZVYmJipTBxHh6eZSC16urqZUDxYozABkl6eHhI8vPzS/Lx8amBxOTl5dWcnZ0lq6qqWIBiekA+L9DiaJBamD6sBtnb20sC6U4gvgASAxp63tbWtgeZTcigUYNGDYqJiZGeO3cu4/z58xlBYosWLWKcMmUKmA0TU1BQiMVrECjvADPiQSMjo4X4MDCF3wQadganQZGRkVFAw96DyiJ8mJeX93Zvb68Osl4AWF08Tf9FROcAAAAASUVORK5CYII=') 9 9, auto;
 	}
 
 	.layout {
