@@ -1,5 +1,3 @@
-import * as constants from './constants.js';
-
 class Rect {
 	constructor(id, x, y, w, h, prev, next) {
 		this.id = id;
@@ -8,10 +6,25 @@ class Rect {
 		this.w = w;
 		this.h = h;
 
+		// this.pos = x || y;
+		// this.size = w === 1 ? h : w;
+
 		this.prev = prev;
 		this.next = next;
 
 		this.parent = null;
+	}
+
+	get pos() {
+		return this.parent
+			? this.parent.row ? this.x : this.y
+			: 0;
+	}
+
+	get size() {
+		return this.parent
+			? this.parent.row ? this.w : this.h
+			: 1;
 	}
 
 	bounds(rect) {
@@ -26,40 +39,44 @@ class Rect {
 		};
 	}
 
-	getLeft() {
-		let left = this.x;
+	getPos(row) {
+		let pos = 0;
 
 		let node = this;
-		while (node = node.parent) left = node.x + (node.w * left);
+		while (node.parent) {
+			if (node.parent.row === row) pos = node.pos + (node.size * pos);
+			node = node.parent;
+		}
 
-		return left;
+		return pos;
+	}
+
+	getLeft() {
+		return this.getPos(true);
 	}
 
 	getTop() {
-		let top = this.y;
+		return this.getPos(false);
+	}
+
+	getSize(row) {
+		let size = 1;
 
 		let node = this;
-		while (node = node.parent) top = node.y + (node.h * top);
+		while (node.parent) {
+			if (node.parent.row === row) size *= node.size;
+			node = node.parent;
+		}
 
-		return top;
+		return size;
 	}
 
 	getWidth() {
-		let width = this.w;
-
-		let node = this;
-		while (node = node.parent) width *= node.w;
-
-		return width;
+		return this.getSize(true);
 	}
 
 	getHeight() {
-		let height = this.h;
-
-		let node = this;
-		while (node = node.parent) height *= node.h;
-
-		return height;
+		return this.getSize(false);
 	}
 
 	setRange(a, b) {
@@ -104,7 +121,6 @@ export class Group extends Rect {
 		super(id, x, y, w, h, prev, next);
 
 		this.row = row;
-		this.type = row ? 'ROW' : 'COLUMN';
 		this.children = [];
 		this.dividers = [];
 	}
