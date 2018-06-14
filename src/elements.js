@@ -1,30 +1,13 @@
 class Rect {
-	constructor(id, x, y, w, h, prev, next) {
+	constructor(id, pos, size, prev, next) {
 		this.id = id;
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
-
-		// this.pos = x || y;
-		// this.size = w === 1 ? h : w;
+		this.pos = pos;
+		this.size = size;
 
 		this.prev = prev;
 		this.next = next;
 
 		this.parent = null;
-	}
-
-	get pos() {
-		return this.parent
-			? this.parent.row ? this.x : this.y
-			: 0;
-	}
-
-	get size() {
-		return this.parent
-			? this.parent.row ? this.w : this.h
-			: 1;
 	}
 
 	bounds(rect) {
@@ -80,19 +63,14 @@ class Rect {
 	}
 
 	setRange(a, b) {
-		if (this.parent.row) {
-			this.x = a;
-			this.w = (b - a);
-		} else {
-			this.y = a;
-			this.h = (b - a);
-		}
+		this.pos = a;
+		this.size = (b - a);
 	}
 }
 
 export class Pane extends Rect {
-	constructor(id, { x, y, w, h, prev, next }) {
-		super(id, x, y, w, h, prev, next);
+	constructor(id, { pos, size, prev, next }) {
+		super(id, pos, size, prev, next);
 		this.id = id;
 	}
 
@@ -106,10 +84,8 @@ export class Pane extends Rect {
 		return {
 			id: this.id,
 			type: 'pane',
-			x: this.x,
-			y: this.y,
-			w: this.w,
-			h: this.h,
+			pos: this.pos,
+			size: this.size,
 			prev: this.prev && this.prev.id,
 			next: this.next && this.next.id
 		};
@@ -117,8 +93,8 @@ export class Pane extends Rect {
 }
 
 export class Group extends Rect {
-	constructor(id, row, { x, y, w, h, prev, next }) {
-		super(id, x, y, w, h, prev, next);
+	constructor(id, row, { pos, size, prev, next }) {
+		super(id, pos, size, prev, next);
 
 		this.row = row;
 		this.children = [];
@@ -154,10 +130,8 @@ export class Group extends Rect {
 			id: this.id,
 			type: 'group',
 			row: this.row,
-			x: this.x,
-			y: this.y,
-			w: this.w,
-			h: this.h,
+			pos: this.pos,
+			size: this.size,
 			prev: this.prev && this.prev.id,
 			next: this.next && this.next.id,
 			children: this.children.map(child => child.toJSON())

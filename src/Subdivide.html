@@ -70,20 +70,16 @@
 			id: 0,
 			type: 'group',
 			row: false,
-			x: 0,
-			y: 0,
-			w: 1,
-			h: 1,
+			pos: 0,
+			size: 1,
 			prev: null,
 			next: null,
 			children: [
 				{
 					type: 'pane',
 					id: 1,
-					x: 0,
-					y: 0,
-					w: 1,
-					h: 1,
+					pos: 0,
+					size: 1,
 					prev: null,
 					next: null
 				}
@@ -127,10 +123,8 @@
 
 				const createGroup = data => {
 					const group = new Group(data.id, data.row, {
-						x: data.x,
-						y: data.y,
-						w: data.w,
-						h: data.h,
+						pos: data.pos,
+						size: data.size,
 						prev: null,
 						next: null
 					});
@@ -140,8 +134,7 @@
 					let lastChild = null;
 
 					data.children.sort((a, b) => {
-						if (group.row) return a.x - b.x;
-						return a.y - b.y;
+						return a.pos - b.pos;
 					}).forEach((data, i) => {
 						let child;
 
@@ -151,10 +144,8 @@
 							child = createGroup(data);
 						} else {
 							child = new Pane(data.id, {
-								x: data.x,
-								y: data.y,
-								w: data.w,
-								h: data.h,
+								pos: data.pos,
+								size: data.size,
 								prev: null,
 								next: null
 							});
@@ -175,7 +166,7 @@
 								id: _did++,
 								type: dividerType,
 								group,
-								position: dividerType === 'horizontal' ? child.y : child.x,
+								position: child.pos,
 								prev: lastChild,
 								next: child
 							});
@@ -231,8 +222,8 @@
 					: new Group(_pid++, childGroupIsRow, pane);
 
 				if (newGroup) {
-					pane.x = pane.y = 0;
-					pane.w = pane.h = 1;
+					pane.pos = 0;
+					pane.size = 1;
 
 					pane.parent.replaceChild(pane, newGroup);
 					group = newGroup;
@@ -259,22 +250,22 @@
 
 				if (childGroupIsRow) {
 					const x = (clientX - bounds.left) / bounds.width;
-					const d = x - pane.x;
+					const d = x - pane.pos;
 
 					divider.position = x;
 
 					if (edge === constants.WEST) {
-						newPane.w = d;
-						pane.x = x;
-						pane.w -= d;
+						newPane.size = d;
+						pane.pos = x;
+						pane.size -= d;
 					} else {
-						newPane.x = x;
-						newPane.w = pane.w - d;
-						pane.w  = d;
+						newPane.pos = x;
+						newPane.size = pane.size - d;
+						pane.size  = d;
 					}
 				} else {
 					const y = (clientY - bounds.top) / bounds.height;
-					const d = y - pane.y;
+					const d = y - pane.pos;
 
 					divider.position = y;
 
@@ -345,12 +336,12 @@
 				let position;
 
 				if (_dragging.type === 'vertical') {
-					min = prev.x;
-					max = next.x + next.w;
+					min = prev.pos;
+					max = next.pos + next.size;
 					position = clamp((event.clientX - bounds.left) / bounds.width, min, max);
 				} else {
-					min = prev.y;
-					max = next.y + next.h;
+					min = prev.pos;
+					max = next.pos + next.size;
 					position = clamp((event.clientY - bounds.top) / bounds.height, min, max);
 				}
 
@@ -368,13 +359,9 @@
 
 				this.drag(event);
 
-				const prevSize = _dragging.type === 'vertical'
-					? _dragging.prev.w
-					: _dragging.prev.h;
+				const prevSize = _dragging.prev.size;
 
-				const min = Math.min(prevSize, _dragging.type === 'vertical'
-					? _dragging.next.w
-					: _dragging.next.h)
+				const min = Math.min(prevSize, _dragging.next.size);
 
 				if (min < 0.0001) {
 					removeFromArray(_dragging.parent.dividers, _dragging);
