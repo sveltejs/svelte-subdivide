@@ -1,12 +1,8 @@
-import * as constants from './constants.js';
-
 class Rect {
-	constructor(id, x, y, w, h, prev, next) {
+	constructor(id, pos, size, prev, next) {
 		this.id = id;
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
+		this.pos = pos;
+		this.size = size;
 
 		this.prev = prev;
 		this.next = next;
@@ -26,56 +22,55 @@ class Rect {
 		};
 	}
 
-	getLeft() {
-		let left = this.x;
+	getPos(row) {
+		let pos = 0;
 
 		let node = this;
-		while (node = node.parent) left = node.x + (node.w * left);
+		while (node.parent) {
+			if (node.parent.row === row) pos = node.pos + (node.size * pos);
+			node = node.parent;
+		}
 
-		return left;
+		return pos;
+	}
+
+	getLeft() {
+		return this.getPos(true);
 	}
 
 	getTop() {
-		let top = this.y;
+		return this.getPos(false);
+	}
+
+	getSize(row) {
+		let size = 1;
 
 		let node = this;
-		while (node = node.parent) top = node.y + (node.h * top);
+		while (node.parent) {
+			if (node.parent.row === row) size *= node.size;
+			node = node.parent;
+		}
 
-		return top;
+		return size;
 	}
 
 	getWidth() {
-		let width = this.w;
-
-		let node = this;
-		while (node = node.parent) width *= node.w;
-
-		return width;
+		return this.getSize(true);
 	}
 
 	getHeight() {
-		let height = this.h;
-
-		let node = this;
-		while (node = node.parent) height *= node.h;
-
-		return height;
+		return this.getSize(false);
 	}
 
 	setRange(a, b) {
-		if (this.parent.type === constants.COLUMN) {
-			this.y = a;
-			this.h = (b - a);
-		} else {
-			this.x = a;
-			this.w = (b - a);
-		}
+		this.pos = a;
+		this.size = (b - a);
 	}
 }
 
 export class Pane extends Rect {
-	constructor(id, { x, y, w, h, prev, next }) {
-		super(id, x, y, w, h, prev, next);
+	constructor(id, { pos, size, prev, next }) {
+		super(id, pos, size, prev, next);
 		this.id = id;
 	}
 
@@ -89,10 +84,8 @@ export class Pane extends Rect {
 		return {
 			id: this.id,
 			type: 'pane',
-			x: this.x,
-			y: this.y,
-			w: this.w,
-			h: this.h,
+			pos: this.pos,
+			size: this.size,
 			prev: this.prev && this.prev.id,
 			next: this.next && this.next.id
 		};
@@ -100,10 +93,10 @@ export class Pane extends Rect {
 }
 
 export class Group extends Rect {
-	constructor(id, type, { x, y, w, h, prev, next }) {
-		super(id, x, y, w, h, prev, next);
+	constructor(id, row, { pos, size, prev, next }) {
+		super(id, pos, size, prev, next);
 
-		this.type = type;
+		this.row = row;
 		this.children = [];
 		this.dividers = [];
 	}
@@ -136,11 +129,9 @@ export class Group extends Rect {
 		return {
 			id: this.id,
 			type: 'group',
-			direction: this.type, // TODO confusing
-			x: this.x,
-			y: this.y,
-			w: this.w,
-			h: this.h,
+			row: this.row,
+			pos: this.pos,
+			size: this.size,
 			prev: this.prev && this.prev.id,
 			next: this.next && this.next.id,
 			children: this.children.map(child => child.toJSON())

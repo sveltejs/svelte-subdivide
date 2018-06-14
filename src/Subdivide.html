@@ -69,21 +69,17 @@
 		root: {
 			id: 0,
 			type: 'group',
-			direction: constants.COLUMN,
-			x: 0,
-			y: 0,
-			w: 1,
-			h: 1,
+			row: false,
+			pos: 0,
+			size: 1,
 			prev: null,
 			next: null,
 			children: [
 				{
 					type: 'pane',
 					id: 1,
-					x: 0,
-					y: 0,
-					w: 1,
-					h: 1,
+					pos: 0,
+					size: 1,
 					prev: null,
 					next: null
 				}
@@ -126,11 +122,9 @@
 				let maxid = 0;
 
 				const createGroup = data => {
-					const group = new Group(data.id, data.direction, {
-						x: data.x,
-						y: data.y,
-						w: data.w,
-						h: data.h,
+					const group = new Group(data.id, data.row, {
+						pos: data.pos,
+						size: data.size,
 						prev: null,
 						next: null
 					});
@@ -139,10 +133,7 @@
 
 					let lastChild = null;
 
-					data.children.sort((a, b) => {
-						if (group.type === constants.COLUMN) return a.y - b.y;
-						return a.x - b.x;
-					}).forEach((data, i) => {
+					data.children.sort((a, b) => a.pos - b.pos).forEach((data, i) => {
 						let child;
 
 						if (data.id > maxid) maxid = data.id;
@@ -151,10 +142,8 @@
 							child = createGroup(data);
 						} else {
 							child = new Pane(data.id, {
-								x: data.x,
-								y: data.y,
-								w: data.w,
-								h: data.h,
+								pos: data.pos,
+								size: data.size,
 								prev: null,
 								next: null
 							});
@@ -169,13 +158,13 @@
 							child.prev = lastChild;
 							lastChild.next = child;
 
-							const dividerType = group.type === constants.COLUMN ? 'horizontal' : 'vertical';
+							const dividerType = group.row ? 'vertical' : 'horizontal';
 
 							const divider = new Divider({
 								id: _did++,
 								type: dividerType,
 								group,
-								position: dividerType === 'horizontal' ? child.y : child.x,
+								position: child.pos,
 								prev: lastChild,
 								next: child
 							});
@@ -222,19 +211,17 @@
 					? 'horizontal'
 					: 'vertical';
 
-				const groupType = dividerType === 'horizontal'
-					? constants.COLUMN
-					: constants.ROW;
+				const childGroupIsRow = dividerType === 'vertical';
 
 				let group = pane.parent;
 
-				const newGroup = group && group.type === groupType
+				const newGroup = group && group.row === childGroupIsRow
 					? null
-					: new Group(_pid++, groupType, pane);
+					: new Group(_pid++, childGroupIsRow, pane);
 
 				if (newGroup) {
-					pane.x = pane.y = 0;
-					pane.w = pane.h = 1;
+					pane.pos = 0;
+					pane.size = 1;
 
 					pane.parent.replaceChild(pane, newGroup);
 					group = newGroup;
@@ -259,39 +246,19 @@
 					next: null
 				});
 
-				if (groupType === constants.COLUMN) {
-					const y = (clientY - bounds.top) / bounds.height;
-					const d = y - pane.y;
+				const pos = childGroupIsRow
+					? (clientX - bounds.left) / bounds.width
+					: (clientY - bounds.top) / bounds.height;
 
-					divider.position = y;
+				const d = pos - pane.pos;
 
-					if (edge === constants.NORTH) {
-						newPane.h = d;
-						pane.y = y;
-						pane.h -= d;
-					} else {
-						newPane.y = y;
-						newPane.h = pane.h - d;
-						pane.h  = d;
-					}
-				} else {
-					const x = (clientX - bounds.left) / bounds.width;
-					const d = x - pane.x;
-
-					divider.position = x;
-
-					if (edge === constants.WEST) {
-						newPane.w = d;
-						pane.x = x;
-						pane.w -= d;
-					} else {
-						newPane.x = x;
-						newPane.w = pane.w - d;
-						pane.w  = d;
-					}
-				}
+				divider.position = pos;
 
 				if (edge === constants.NORTH || edge === constants.WEST) {
+					newPane.size = d;
+					pane.pos = pos;
+					pane.size -= d;
+
 					if (pane.prev) pane.prev.next = newPane;
 
 					pane.prev = divider;
@@ -300,6 +267,10 @@
 					divider.prev = newPane;
 					divider.next = pane;
 				} else {
+					newPane.pos = pos;
+					newPane.size = pane.size - d;
+					pane.size = d;
+
 					if (pane.next) pane.next.prev = newPane;
 
 					pane.next = divider;
@@ -339,22 +310,14 @@
 
 				const bounds = _dragging.parent.bounds(this.refs.container.getBoundingClientRect());
 
-				const prev = _dragging.prev;
-				const next = _dragging.next;
+				const { prev, next } = _dragging;
 
-				let min;
-				let max;
-				let position;
+				const min = prev.pos;
+				const max = next.pos + next.size;
 
-				if (_dragging.type === 'vertical') {
-					min = prev.x;
-					max = next.x + next.w;
-					position = clamp((event.clientX - bounds.left) / bounds.width, min, max);
-				} else {
-					min = prev.y;
-					max = next.y + next.h;
-					position = clamp((event.clientY - bounds.top) / bounds.height, min, max);
-				}
+				const position = _dragging.type === 'vertical'
+					? clamp((event.clientX - bounds.left) / bounds.width, min, max)
+					: clamp((event.clientY - bounds.top) / bounds.height, min, max);
 
 				prev.setRange(min, position);
 				next.setRange(position, max);
@@ -370,13 +333,9 @@
 
 				this.drag(event);
 
-				const prevSize = _dragging.type === 'vertical'
-					? _dragging.prev.w
-					: _dragging.prev.h;
+				const prevSize = _dragging.prev.size;
 
-				const min = Math.min(prevSize, _dragging.type === 'vertical'
-					? _dragging.next.w
-					: _dragging.next.h)
+				const min = Math.min(prevSize, _dragging.next.size);
 
 				if (min < 0.0001) {
 					removeFromArray(_dragging.parent.dividers, _dragging);

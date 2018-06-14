@@ -559,31 +559,25 @@ test('accepts a layout', t => {
 		root: {
 			id: 0,
 			type: 'group',
-			direction: 'COLUMN',
-			x: 0,
-			y: 0,
-			w: 1,
-			h: 1,
+			row: false,
+			pos: 0,
+			size: 1,
 			prev: null,
 			next: null,
 			children: [
 				{
 					type: 'pane',
 					id: 1,
-					x: 0,
-					y: 0,
-					w: 1,
-					h: 0.5,
+					pos: 0,
+					size: 0.5,
 					prev: null,
 					next: null
 				},
 				{
 					type: 'pane',
-					id: 1,
-					x: 0,
-					y: 0.5,
-					w: 1,
-					h: 0.5,
+					id: 2,
+					pos: 0.5,
+					size: 0.5,
 					prev: null,
 					next: null
 				}
