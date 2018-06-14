@@ -67,7 +67,6 @@
 
 	const defaultLayout = {
 		root: {
-			id: 0,
 			type: 'group',
 			row: false,
 			pos: 0,
@@ -118,18 +117,15 @@
 				const panes = [];
 				const dividers = [];
 
-				const lookup = {};
 				let maxid = 0;
 
 				const createGroup = data => {
-					const group = new Group(data.id, data.row, {
+					const group = new Group(data.row, {
 						pos: data.pos,
 						size: data.size,
 						prev: null,
 						next: null
 					});
-
-					lookup[data.id] = group;
 
 					let lastChild = null;
 
@@ -148,7 +144,6 @@
 								next: null
 							});
 
-							lookup[data.id] = child;
 							panes.push(child);
 						}
 
@@ -217,7 +212,7 @@
 
 				const newGroup = group && group.row === childGroupIsRow
 					? null
-					: new Group(_pid++, childGroupIsRow, pane);
+					: new Group(childGroupIsRow, pane);
 
 				if (newGroup) {
 					pane.pos = 0;
