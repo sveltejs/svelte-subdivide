@@ -47,6 +47,9 @@
 	export let _did = 0;
 	export let _ids = new Set();
 	export let _root;
+	let _userSelect;
+	let _updating;
+	let _layoutChanged = true;
 
 	const dispatch = createEventDispatcher();
 
@@ -54,9 +57,10 @@
 	// beforeUpdate and afterUpdate handlers behave
 	// differently to their v2 counterparts
 	beforeUpdate(() => {
-		if (__this.updating) return;
+		if (_updating) return;
 
-		if (changed.layout) {
+		if (_layoutChanged) {
+			_layoutChanged = false;
 
 			const panes = [];
 			const dividers = [];
@@ -114,7 +118,7 @@
 				return group;
 			};
 
-			const root = createGroup(current.layout ? current.layout.root : defaultLayout.root);
+			const root = createGroup(layout ? layout.root : defaultLayout.root);
 
 			_did = _did, _ids = _ids, _root = root, _panes = panes, _dividers = dividers;
 		}
@@ -131,14 +135,17 @@
 	}
 
 	function _updateLayout() {
+		_updating = true;
+
+		_layoutChanged = true;
 		const layout = {
 			root: _root.toJSOb()
 		};
 
-		__this.updating = true;
 		layout = layout;
 		dispatch('layout', { layout });
-		__this.updating = false;
+
+		_updating = false;
 	}
 
 	function _split(pane, event) {
@@ -223,7 +230,7 @@
 
 		_did = _did, _panes = _panes, _dividers = _dividers, _dragging = divider;
 
-		__this._userSelect = document.body.style.userSelect;
+		_userSelect = document.body.style.userSelect;
 		document.body.style.userSelect = 'none';
 
 		_updateLayout();
@@ -299,7 +306,7 @@
 		}
 
 		_panes = _panes, _dividers = _dividers, _dragging = false;
-		document.body.style.userSelect = __this._userSelect;
+		document.body.style.userSelect = _userSelect;
 
 		_updateLayout();
 
