@@ -42,7 +42,7 @@ The component constructor you supply to `<Subdivide>` will be instantiated for e
     <svelte:component this={selected.component}/>
   {:else}
     {#each options as option}
-      <button on:click="set({ selected: option })">
+      <button on:click="{() => set({ selected: option })}">
         {selected.label}
       </button>
     {/each}
@@ -109,9 +109,9 @@ You can listen for `open`, `close` and `layout` events. Each event is an object 
 ```html
 <Subdivide
   component={Pane}
-  on:open="console.log(`opened ${event.pane.id}`)"
-  on:close="console.log(`closed ${event.pane.id}`)"
-  on:layout="console.log(`updated layout`)"
+  on:open="{(e) => console.log(`opened ${e.pane.id}`)}"
+  on:close="{(e) => console.log(`closed ${e.pane.id}`)}"
+  on:layout="{(e) => console.log(`updated layout`)}"
 />
 ```
 
