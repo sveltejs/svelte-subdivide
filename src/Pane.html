@@ -1,5 +1,76 @@
+<script>
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
+
+	export let pane;
+
+	import * as constants from './constants.js';
+
+	const THRESHOLD = 100;
+
+	function wasCmdOrCtrlPressed(event) {
+		return constants.IS_MAC ? event.metaKey : event.ctrlKey;
+	}
+
+	export let _keyPressed;
+	export let edge = null;
+	export let pane;
+	export let component;
+
+	export let cursor;
+	$: {
+		if (!_keyPressed || !edge) cursor = 'default';
+
+		return (
+			edge === constants.NORTH ? 's-resize' :
+			edge === constants.SOUTH ? 'n-resize' :
+			edge === constants.WEST ? 'e-resize' :
+			edge === constants.EAST ? 'w-resize' :
+			'default'
+		);
+	}
+
+	// [svelte-upgrade suggestion]
+	// review these functions and remove unnecessary 'export' keywords
+	export function findEdge(event) {
+		const { top, right, bottom, left } = pane.getBoundingClientRect();
+
+		const d = [
+			[constants.NORTH, event.clientY - top],
+			[constants.SOUTH, bottom - event.clientY],
+			[constants.EAST, right - event.clientX],
+			[constants.WEST, event.clientX -left]
+		];
+
+		if (d[0][1] > THRESHOLD && d[1][1] > THRESHOLD && d[2][1] > THRESHOLD && d[3][1] > THRESHOLD) return null;
+
+		d.sort((a, b) => a[1] - b[1]);
+
+		return d[0][0];
+	}
+
+	export function handleMousedown(node, event) {
+		if (!wasCmdOrCtrlPressed(event)) return;
+
+		const edge = findEdge(event);
+		if (!edge) return;
+
+		dispatch('split', {
+			edge,
+			clientX: event.clientX,
+			clientY: event.clientY
+		});
+	}
+
+	export function handleMousemove(node, event) {
+		const edge = findEdge(event);
+		edge = edge;
+	}
+</script>
+
 <div
-	ref:pane
+	bind:this={pane}
 	class="pane"
 	style="
 		left: {pane.getLeft() * 100}%;
@@ -8,8 +79,8 @@
 		height: {pane.getHeight() * 100}%;
 		cursor: {cursor}
 	"
-	on:mousedown="handleMousedown(this, event)"
-	on:mousemove="handleMousemove(this, event)"
+	on:mousedown="{event => handleMousedown(this, event)}"
+	on:mousemove="{event => handleMousemove(this, event)}"
 >
 	<div class="inner">
 		<svelte:component this={component} {pane}/>
@@ -31,70 +102,3 @@
 		overflow: hidden;
 	}
 </style>
-
-<script>
-	import * as constants from './constants.js';
-
-	const THRESHOLD = 100;
-
-	function wasCmdOrCtrlPressed(event) {
-		return constants.IS_MAC ? event.metaKey : event.ctrlKey;
-	}
-
-	export default {
-		data() {
-			return { edge: null };
-		},
-
-		computed: {
-			cursor: ({ _keyPressed, edge }) => {
-				if (!_keyPressed || !edge) return 'default';
-
-				return (
-					edge === constants.NORTH ? 's-resize' :
-					edge === constants.SOUTH ? 'n-resize' :
-					edge === constants.WEST ? 'e-resize' :
-					edge === constants.EAST ? 'w-resize' :
-					'default'
-				);
-			}
-		},
-
-		methods: {
-			findEdge(event) {
-				const { top, right, bottom, left } = this.refs.pane.getBoundingClientRect();
-
-				const d = [
-					[constants.NORTH, event.clientY - top],
-					[constants.SOUTH, bottom - event.clientY],
-					[constants.EAST, right - event.clientX],
-					[constants.WEST, event.clientX -left]
-				];
-
-				if (d[0][1] > THRESHOLD && d[1][1] > THRESHOLD && d[2][1] > THRESHOLD && d[3][1] > THRESHOLD) return null;
-
-				d.sort((a, b) => a[1] - b[1]);
-
-				return d[0][0];
-			},
-
-			handleMousedown(node, event) {
-				if (!wasCmdOrCtrlPressed(event)) return;
-
-				const edge = this.findEdge(event);
-				if (!edge) return;
-
-				this.fire('split', {
-					edge,
-					clientX: event.clientX,
-					clientY: event.clientY
-				});
-			},
-
-			handleMousemove(node, event) {
-				const edge = this.findEdge(event);
-				this.set({ edge });
-			}
-		}
-	};
-</script>
