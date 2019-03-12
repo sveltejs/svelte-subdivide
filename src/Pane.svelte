@@ -31,9 +31,7 @@
 		);
 	}
 
-	// [svelte-upgrade suggestion]
-	// review these functions and remove unnecessary 'export' keywords
-	export function findEdge(event) {
+	function findEdge(event) {
 		const { top, right, bottom, left } = pane.getBoundingClientRect();
 
 		const d = [
@@ -50,7 +48,7 @@
 		return d[0][0];
 	}
 
-	export function handleMousedown(node, event) {
+	function handleMousedown(event) {
 		if (!wasCmdOrCtrlPressed(event)) return;
 
 		const edge = findEdge(event);
@@ -63,9 +61,8 @@
 		});
 	}
 
-	export function handleMousemove(node, event) {
-		const edge = findEdge(event);
-		edge = edge;
+	function handleMousemove(event) {
+		edge = findEdge(event);
 	}
 </script>
 
@@ -79,8 +76,8 @@
 		height: {pane.getHeight() * 100}%;
 		cursor: {cursor}
 	"
-	on:mousedown="{event => handleMousedown(this, event)}"
-	on:mousemove="{event => handleMousemove(this, event)}"
+	on:mousedown="{handleMousedown}"
+	on:mousemove="{handleMousemove}"
 >
 	<div class="inner">
 		<svelte:component this={component} {pane}/>
