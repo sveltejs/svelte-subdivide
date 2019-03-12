@@ -3,10 +3,6 @@
 
 	import Pane from './Pane.svelte';
 	import Divider from './Divider.svelte';
-	// [svelte-upgrade suggestion]
-	// manually refactor all references to __this
-	const __this = {};
-
 
 	import { PaneData, GroupData, DividerData } from './elements.js';
 	import { removeFromArray, clamp, getId } from './utils.js';
@@ -36,6 +32,7 @@
 	export let container;
 	export let component;
 	export let layout = defaultLayout;
+
 	export let thickness = '1px';
 	export let padding = '6px';
 	export let color = 'white';
@@ -55,9 +52,6 @@
 
 	const dispatch = createEventDispatcher();
 
-	// [svelte-upgrade warning]
-	// beforeUpdate and afterUpdate handlers behave
-	// differently to their v2 counterparts
 	beforeUpdate(() => {
 		if (_updating) return;
 
