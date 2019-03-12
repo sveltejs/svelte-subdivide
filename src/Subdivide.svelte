@@ -48,8 +48,8 @@
 	export let _ids = new Set();
 	export let _root;
 
-	import Pane from './Pane.html';
-	import Divider from './Divider.html';
+	import Pane from './Pane.svelte';
+	import Divider from './Divider.svelte';
 
 	// [svelte-upgrade warning]
 	// beforeUpdate and afterUpdate handlers behave

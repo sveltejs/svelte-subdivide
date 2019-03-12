@@ -2,7 +2,7 @@
   "name": "@sveltejs/svelte-subdivide",
   "version": "2.2.0",
   "description": "A <Subdivide> component for building Blender-style layouts in Svelte apps",
-  "svelte": "src/Subdivide.html",
+  "svelte": "src/Subdivide.svelte",
   "module": "index.mjs",
   "main": "index.js",
   "scripts": {

@@ -19,7 +19,7 @@ yarn add @sveltejs/svelte-subdivide
 
 <script>
   import Subdivide from '@sveltejs/svelte-subdivide';
-  import Pane from './Pane.html';
+  import Pane from './Pane.svelte';
 
   export default {
     components: { Subdivide },
@@ -36,7 +36,7 @@ yarn add @sveltejs/svelte-subdivide
 The component constructor you supply to `<Subdivide>` will be instantiated for each cell of your layout. Typically, it would be a component that allows the user to select from a variety of different panes.
 
 ```html
-<!-- Pane.html -->
+<!-- Pane.svelte -->
 <div>
   {#if selected}
     <svelte:component this={selected.component}/>
@@ -80,7 +80,7 @@ You can also specify a `layout` parameter, to implement save and restore:
 
 <script>
   import Subdivide from '@sveltejs/svelte-subdivide';
-  import Item from './Item.html';
+  import Item from './Item.svelte';
 
   export default {
     components: {
@@ -118,7 +118,7 @@ You can listen for `open`, `close` and `layout` events. Each event is an object 
 
 ## Configuring webpack
 
-If you're using webpack with [svelte-loader](https://github.com/sveltejs/svelte-loader), make sure that you add `"svelte"` to [`resolve.mainFields`](https://webpack.js.org/configuration/resolve/#resolve-mainfields) in your webpack config. This ensures that webpack imports the uncompiled component (`src/index.html`) rather than the compiled version (`index.mjs`) — this is more efficient.
+If you're using webpack with [svelte-loader](https://github.com/sveltejs/svelte-loader), make sure that you add `"svelte"` to [`resolve.mainFields`](https://webpack.js.org/configuration/resolve/#resolve-mainfields) in your webpack config. This ensures that webpack imports the uncompiled component (`src/index.svelte`) rather than the compiled version (`index.mjs`) — this is more efficient.
 
 If you're using Rollup with [rollup-plugin-svelte](https://github.com/rollup/rollup-plugin-svelte), this will happen automatically.
 
