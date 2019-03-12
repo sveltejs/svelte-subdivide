@@ -10,7 +10,7 @@
 	export let container;
 
 	import * as constants from './constants.js';
-	import { Pane, Group, Divider } from './elements.js';
+	import { PaneData, GroupData, DividerData } from './elements.js';
 	import { removeFromArray, clamp, getId } from './utils.js';
 
 	const defaultLayout = {
@@ -63,7 +63,7 @@
 			const dividers = [];
 
 			const createGroup = data => {
-				const group = new Group(data.row, {
+				const group = new GroupData(data.row, {
 					pos: data.pos,
 					size: data.size,
 					prev: null,
@@ -78,7 +78,7 @@
 					if (data.type === 'group') {
 						child = createGroup(data);
 					} else {
-						child = new Pane(data.id, {
+						child = new PaneData(data.id, {
 							pos: data.pos,
 							size: data.size,
 							prev: null,
@@ -97,7 +97,7 @@
 
 						const dividerType = group.row ? 'vertical' : 'horizontal';
 
-						const divider = new Divider({
+						const divider = new DividerData({
 							id: _did++,
 							type: dividerType,
 							group,
@@ -156,7 +156,7 @@
 
 		const newGroup = group && group.row === childGroupIsRow
 			? null
-			: new Group(childGroupIsRow, pane);
+			: new GroupData(childGroupIsRow, pane);
 
 		if (newGroup) {
 			pane.pos = 0;
@@ -173,10 +173,10 @@
 
 		const bounds = group.bounds(container.getBoundingClientRect());
 
-		const newPane = new Pane(_getId(), pane);
+		const newPane = new PaneData(_getId(), pane);
 		group.addChild(newPane);
 
-		const divider = new Divider({
+		const divider = new DividerData({
 			id: _did++,
 			type: dividerType,
 			group,
