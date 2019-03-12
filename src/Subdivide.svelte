@@ -39,14 +39,16 @@
 	export let thickness = '1px';
 	export let padding = '6px';
 	export let color = 'white';
-	export let _panes = [];
-	export let _keyPressed = false;
-	export let _dividers = [];
-	export let _dragging = null;
-	export let _closing;
-	export let _did = 0;
-	export let _ids = new Set();
-	export let _root;
+
+	let _root;
+	let _panes = [];
+	let _keyPressed = false;
+	let _dividers = [];
+	let _dragging = null;
+	let _closing;
+	let _did = 0;
+	let _ids = new Set();
+
 	let _userSelect;
 	let _updating;
 	let _layoutChanged = true;
