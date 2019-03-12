@@ -22,7 +22,7 @@
 	$: {
 		if (!_keyPressed || !edge) cursor = 'default';
 
-		return (
+		cursor = (
 			edge === constants.NORTH ? 's-resize' :
 			edge === constants.SOUTH ? 'n-resize' :
 			edge === constants.WEST ? 'e-resize' :
