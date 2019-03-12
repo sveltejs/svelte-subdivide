@@ -3,8 +3,6 @@
 
 	const dispatch = createEventDispatcher();
 
-	export let pane;
-
 	import * as constants from './constants.js';
 
 	const THRESHOLD = 100;
