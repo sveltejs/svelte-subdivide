@@ -33,17 +33,17 @@
 		const { top, right, bottom, left } = pane.getBoundingClientRect();
 
 		const d = [
-			[constants.NORTH, event.clientY - top],
-			[constants.SOUTH, bottom - event.clientY],
-			[constants.EAST, right - event.clientX],
-			[constants.WEST, event.clientX -left]
+			{type: constants.NORTH, position: event.clientY - top},
+			{type: constants.SOUTH, position: bottom - event.clientY},
+			{type: constants.EAST, position: right - event.clientX},
+			{type: constants.WEST, position: event.clientX -left}
 		];
 
-		if (d[0][1] > THRESHOLD && d[1][1] > THRESHOLD && d[2][1] > THRESHOLD && d[3][1] > THRESHOLD) return null;
+		if (d[0].position > THRESHOLD && d[1].position > THRESHOLD && d[2].position > THRESHOLD && d[3].position > THRESHOLD) return null;
 
-		d.sort((a, b) => a[1] - b[1]);
+		d.sort((a, b) => a.position - b.position);
 
-		return d[0][0];
+		return d[0].type;
 	}
 
 	function handleMousedown(event) {
