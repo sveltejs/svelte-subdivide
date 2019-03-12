@@ -1,17 +1,16 @@
 <script>
 	import { beforeUpdate, createEventDispatcher } from 'svelte';
 
+	import Pane from './Pane.svelte';
+	import Divider from './Divider.svelte';
 	// [svelte-upgrade suggestion]
 	// manually refactor all references to __this
 	const __this = {};
 
-	const dispatch = createEventDispatcher();
 
-	export let container;
-
-	import * as constants from './constants.js';
 	import { PaneData, GroupData, DividerData } from './elements.js';
 	import { removeFromArray, clamp, getId } from './utils.js';
+	import * as constants from './constants.js';
 
 	const defaultLayout = {
 		root: {
@@ -34,22 +33,22 @@
 		}
 	};
 
+	export let container;
+	export let component;
+	export let layout = defaultLayout;
 	export let thickness = '1px';
 	export let padding = '6px';
 	export let color = 'white';
 	export let _panes = [];
 	export let _keyPressed = false;
-	export let component;
 	export let _dividers = [];
 	export let _dragging = null;
 	export let _closing;
-	export let layout = defaultLayout;
 	export let _did = 0;
 	export let _ids = new Set();
 	export let _root;
 
-	import Pane from './Pane.svelte';
-	import Divider from './Divider.svelte';
+	const dispatch = createEventDispatcher();
 
 	// [svelte-upgrade warning]
 	// beforeUpdate and afterUpdate handlers behave
