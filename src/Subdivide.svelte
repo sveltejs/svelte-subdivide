@@ -140,11 +140,9 @@
 		_updating = true;
 
 		_layoutChanged = true;
-		const layout = {
+		layout = {
 			root: _root.toJSOb()
 		};
-
-		layout = layout;
 		dispatch('layout', { layout });
 
 		_updating = false;
@@ -265,9 +263,7 @@
 
 		_dragging.position = position;
 
-		const _closing = position === min || position === max;
-
-		_panes = _panes, _dividers = _dividers, _closing = _closing;
+		_panes = _panes, _dividers = _dividers, _closing = position === min || position === max;
 	}
 
 	function _end(event) {
