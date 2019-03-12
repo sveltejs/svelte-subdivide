@@ -121,9 +121,7 @@
 		}
 	});
 
-	// [svelte-upgrade suggestion]
-	// review these functions and remove unnecessary 'export' keywords
-	export function _getId() {
+	function _getId() {
 		while (true) {
 			const id = getId();
 			if (!_ids.has(id)) {
@@ -133,7 +131,7 @@
 		}
 	}
 
-	export function _updateLayout() {
+	function _updateLayout() {
 		const layout = {
 			root: _root.toJSOb()
 		};
@@ -144,7 +142,7 @@
 		__this.updating = false;
 	}
 
-	export function _split(pane, event) {
+	function _split(pane, event) {
 		const { left, right, top, bottom } = container.getBoundingClientRect();
 		const { edge, clientX, clientY } = event;
 
@@ -233,14 +231,14 @@
 		dispatch('open', { pane: newPane, layout });
 	}
 
-	export function _start(divider) {
-		__this._userSelect = document.body.style.userSelect;
+	function _start(divider) {
+		_userSelect = document.body.style.userSelect;
 		document.body.style.userSelect = 'none';
 
 		_dragging = divider;
 	}
 
-	export function _drag(event) {
+	function _drag(event) {
 		if (!_dragging) return;
 
 		const bounds = _dragging.parent.bounds(container.getBoundingClientRect());
@@ -264,7 +262,7 @@
 		_panes = _panes, _dividers = _dividers, _closing = _closing;
 	}
 
-	export function _end(event) {
+	function _end(event) {
 		if (!_dragging) return;
 
 		_drag(event);
@@ -311,7 +309,7 @@
 		}
 	}
 
-	export function _handleKeydown(event) {
+	function _handleKeydown(event) {
 		_keyPressed = event.which === constants.KEYCODE;
 	}
 </script>
