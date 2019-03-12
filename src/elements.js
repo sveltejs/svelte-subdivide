@@ -79,7 +79,7 @@ export class Pane extends Rect {
 		panes.splice(index, 1);
 	}
 
-	toJSON() {
+	toJSOb() {
 		return {
 			id: this.id,
 			type: 'pane',
@@ -124,7 +124,7 @@ export class Group extends Rect {
 		while (i--) this.dividers[i].destroy(dividers);
 	}
 
-	toJSON() {
+	toJSOb() {
 		return {
 			type: 'group',
 			row: this.row,
@@ -132,7 +132,7 @@ export class Group extends Rect {
 			size: this.size,
 			prev: this.prev && this.prev.id,
 			next: this.next && this.next.id,
-			children: this.children.map(child => child.toJSON())
+			children: this.children.map(child => child.toJSOb())
 		};
 	}
 }

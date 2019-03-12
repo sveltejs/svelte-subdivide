@@ -135,7 +135,7 @@
 
 	export function _updateLayout() {
 		const layout = {
-			root: _root.toJSON()
+			root: _root.toJSOb()
 		};
 
 		__this.updating = true;
