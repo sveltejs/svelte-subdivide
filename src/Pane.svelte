@@ -14,6 +14,7 @@
 	export let _keyPressed;
 	export let edge = null;
 	export let pane;
+	export let paneElement;
 	export let component;
 
 	export let cursor;
@@ -30,7 +31,7 @@
 	}
 
 	function findEdge(event) {
-		const { top, right, bottom, left } = pane.getBoundingClientRect();
+		const { top, right, bottom, left } = paneElement.getBoundingClientRect();
 
 		const d = [
 			{type: constants.NORTH, position: event.clientY - top},
@@ -65,7 +66,7 @@
 </script>
 
 <div
-	bind:this={pane}
+	bind:this={paneElement}
 	class="pane"
 	style="
 		left: {pane.getLeft() * 100}%;
