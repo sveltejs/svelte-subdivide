@@ -144,7 +144,7 @@
 
 	function _split(pane, event) {
 		const { left, right, top, bottom } = container.getBoundingClientRect();
-		const { edge, clientX, clientY } = event;
+		const { edge, clientX, clientY } = event.detail;
 
 		const dividerType = edge === constants.NORTH || edge === constants.SOUTH
 			? 'horizontal'
@@ -249,8 +249,8 @@
 		const max = next.pos + next.size;
 
 		const position = _dragging.type === 'vertical'
-			? clamp((event.clientX - bounds.left) / bounds.width, min, max)
-			: clamp((event.clientY - bounds.top) / bounds.height, min, max);
+			? clamp((event.detail.clientX - bounds.left) / bounds.width, min, max)
+			: clamp((event.detail.clientY - bounds.top) / bounds.height, min, max);
 
 		prev.setRange(min, position);
 		next.setRange(position, max);
