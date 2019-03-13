@@ -40,13 +40,12 @@ export function indent(node, spaces) {
 export function normalize(html) {
 	const div = document.createElement('div');
 	div.innerHTML = html
-		.replace(/<!--.+?-->/g, '')
-        .replace(/<object.+\/object>/g, '')
+        .replace(/<!--.*?-->/g, '')
         .replace(/\s*svelte-\w+\s*/g, '')
+        .replace(/class=""/g, '')
+        .replace(/>\s+/g, '>')
+        .replace(/\s+</g, '<')
         .replace(/class="svelte-\w+"\s*/g, '')
-        .replace(/<!---->/g, '')
-		.replace(/>\s+/g, '>')
-		.replace(/\s+</g, '<');
 
 	indent(div, '');
 
