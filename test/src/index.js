@@ -548,13 +548,13 @@ test('accepts a layout', async t => {
 				<div class="layout" style="--thickness:0px; --draggable:calc(0px + 6px); --color:white;">
 					<div class="pane" style="left: 0%; top: 0%; width: 100%; height: 50%; cursor: default;">
 						<div class="inner">
-							<span>1</span>
+							<span>0</span>
 						</div>
 					</div>
 	
 					<div class="pane" style="left: 0%; top: 50%; width: 100%; height: 50%; cursor: default;">
 						<div class="inner">
-							<span>0</span>
+							<span>1</span>
 						</div>
 					</div>
 	
