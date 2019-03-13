@@ -1,6 +1,7 @@
 import App from './App.svelte';
 import { normalize, sleep } from './utils.js';
 import { assert, test, done } from 'tape-modern';
+import { tick } from 'svelte';
 
 // setup
 const target = document.querySelector('main');
@@ -9,27 +10,30 @@ assert.htmlEqual = (a, b, msg) => {
 	assert.equal(normalize(a), normalize(b), msg);
 };
 
-function mousedown(node, clientX, clientY, metaKey) {
+async function mousedown(node, clientX, clientY, metaKey) {
 	node.dispatchEvent(new MouseEvent('mousedown', {
 		metaKey,
 		ctrlKey: metaKey,
 		clientX,
 		clientY
 	}));
+	await tick();
 }
 
-function mousemove(node, clientX, clientY) {
+async function mousemove(node, clientX, clientY) {
 	node.dispatchEvent(new MouseEvent('mousemove', {
 		clientX,
 		clientY
 	}));
+	await tick();
 }
 
-function mouseup(node, clientX, clientY) {
+async function mouseup(node, clientX, clientY) {
 	node.dispatchEvent(new MouseEvent('mouseup', {
 		clientX,
 		clientY
 	}));
+	await tick();
 }
 
 // tests
@@ -56,7 +60,7 @@ test('creates a single pane element that fills the target', async t => {
 	}
 });
 
-test('creates a new pane', t => {
+test('creates a new pane', async t => {
 	const app = new App({
 		target
 	});
@@ -64,9 +68,8 @@ test('creates a new pane', t => {
 	try {
 		const pane = document.querySelector('.pane');
 	
-		mousedown(pane, 5, 100, true);
-		sleep(100);
-		mouseup(document.querySelector('.overlay'), 200, 100);
+		await mousedown(pane, 5, 100, true);
+		await mouseup(document.querySelector('.overlay'), 200, 100);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -93,7 +96,7 @@ test('creates a new pane', t => {
 	}
 });
 
-test('preserves correct pane/divider relationships (a)', t => {
+test('preserves correct pane/divider relationships (a)', async t => {
 	const app = new App({
 		target
 	});
@@ -109,20 +112,20 @@ test('preserves correct pane/divider relationships (a)', t => {
 		let pane = document.querySelector('.pane');
 	
 		// split from the left edge
-		mousedown(pane, 5, 100, true);
-		mouseup(document.querySelector('.overlay'), 200, 100);
+		await mousedown(pane, 5, 100, true);
+		await mouseup(document.querySelector('.overlay'), 200, 100);
 	
 		// split from the right edge
-		mousedown(pane, 995, 100, true);
-		mouseup(document.querySelector('.overlay'), 800, 100);
+		await mousedown(pane, 995, 100, true);
+		await mouseup(document.querySelector('.overlay'), 800, 100);
 	
 		// split from the top middle
-		mousedown(pane, 500, 5, true);
-		mouseup(document.querySelector('.overlay'), 500, 500);
+		await mousedown(pane, 500, 5, true);
+		await mouseup(document.querySelector('.overlay'), 500, 500);
 	
 		// split the lower middle chunk from the left
-		mousedown(pane, 205, 750, true);
-		mouseup(document.querySelector('.overlay'), 500, 750);
+		await mousedown(pane, 205, 750, true);
+		await mouseup(document.querySelector('.overlay'), 500, 750);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -168,8 +171,8 @@ test('preserves correct pane/divider relationships (a)', t => {
 		// now, check that dragging the leftmost vertical slider updates the
 		// layout how we expect
 		let divider = target.querySelectorAll('.divider')[0];
-		mousedown(divider, 200, 500);
-		mouseup(document.querySelector('.overlay'), 100, 500);
+		await mousedown(divider, 200, 500);
+		await mouseup(document.querySelector('.overlay'), 100, 500);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -214,13 +217,13 @@ test('preserves correct pane/divider relationships (a)', t => {
 	
 		// split the top middle pane
 		pane = target.querySelectorAll('.pane')[3];
-		mousedown(pane, 105, 250, true);
-		mouseup(document.querySelector('.overlay'), 500, 250);
+		await mousedown(pane, 105, 250, true);
+		await mouseup(document.querySelector('.overlay'), 500, 250);
 	
 		// drag the rightmost vertical divider
 		divider = target.querySelectorAll('.divider')[1];
-		mousedown(divider, 800, 500);
-		mouseup(document.querySelector('.overlay'), 900, 500);
+		await mousedown(divider, 800, 500);
+		await mouseup(document.querySelector('.overlay'), 900, 500);
 	
 		// TODO tweak the numbers so we get nice round (testable) numbers
 		// t.htmlEqual(target.innerHTML, `
@@ -279,7 +282,7 @@ test('preserves correct pane/divider relationships (a)', t => {
 	}
 });
 
-test('preserves correct pane/divider relationships (b)', t => {
+test('preserves correct pane/divider relationships (b)', async t => {
 	const app = new App({
 		target
 	});
@@ -295,13 +298,13 @@ test('preserves correct pane/divider relationships (b)', t => {
 		let pane = document.querySelector('.pane');
 	
 		// split from the left edge
-		mousedown(pane, 5, 100, true);
-		mouseup(document.querySelector('.overlay'), 700, 100);
+		await mousedown(pane, 5, 100, true);
+		await mouseup(document.querySelector('.overlay'), 700, 100);
 	
 		// split from the new split
 		pane = target.querySelectorAll('.pane')[1];
-		mousedown(pane, 695, 100, true);
-		mouseup(document.querySelector('.overlay'), 300, 100);
+		await mousedown(pane, 695, 100, true);
+		await mouseup(document.querySelector('.overlay'), 300, 100);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -333,8 +336,8 @@ test('preserves correct pane/divider relationships (b)', t => {
 		// now, check that dragging the leftmost vertical slider updates the
 		// layout how we expect
 		let divider = target.querySelectorAll('.divider')[0];
-		mousedown(divider, 700, 500);
-		mouseup(document.querySelector('.overlay'), 500, 500);
+		await mousedown(divider, 700, 500);
+		await mouseup(document.querySelector('.overlay'), 500, 500);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -368,7 +371,7 @@ test('preserves correct pane/divider relationships (b)', t => {
 	}
 });
 
-test('preserves correct pane/divider relationships (c)', t => {
+test('preserves correct pane/divider relationships (c)', async t => {
 	const app = new App({
 		target
 	});
@@ -377,13 +380,13 @@ test('preserves correct pane/divider relationships (c)', t => {
 		let pane = document.querySelector('.pane');
 	
 		// split from the left edge
-		mousedown(pane, 5, 100, true);
-		mouseup(document.querySelector('.overlay'), 250, 100);
+		await mousedown(pane, 5, 100, true);
+		await mouseup(document.querySelector('.overlay'), 250, 100);
 	
 		// split from the new split
 		pane = target.querySelectorAll('.pane')[0];
-		mousedown(pane, 255, 100, true);
-		mouseup(document.querySelector('.overlay'), 500, 100);
+		await mousedown(pane, 255, 100, true);
+		await mouseup(document.querySelector('.overlay'), 500, 100);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -415,8 +418,8 @@ test('preserves correct pane/divider relationships (c)', t => {
 		// now, check that dragging the leftmost vertical slider updates the
 		// layout how we expect
 		let divider = target.querySelectorAll('.divider')[0];
-		mousedown(divider, 250, 500);
-		mouseup(document.querySelector('.overlay'), 350, 500);
+		await mousedown(divider, 250, 500);
+		await mouseup(document.querySelector('.overlay'), 350, 500);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -450,7 +453,7 @@ test('preserves correct pane/divider relationships (c)', t => {
 	}
 });
 
-test('destroys panes', t => {
+test('destroys panes', async t => {
 	const app = new App({
 		target
 	});
@@ -459,8 +462,8 @@ test('destroys panes', t => {
 		const container = target.querySelector('.layout');
 		const pane = document.querySelector('.pane');
 	
-		mousedown(pane, 5, 100, true);
-		mouseup(document.querySelector('.overlay'), 200, 100);
+		await mousedown(pane, 5, 100, true);
+		await mouseup(document.querySelector('.overlay'), 200, 100);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -484,8 +487,8 @@ test('destroys panes', t => {
 	
 		let divider = target.querySelector('.divider');
 	
-		mousedown(divider, 200, 500);
-		mouseup(document.querySelector('.overlay'), 1001, 500);
+		await mousedown(divider, 200, 500);
+		await mouseup(document.querySelector('.overlay'), 1001, 500);
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -504,7 +507,7 @@ test('destroys panes', t => {
 	}
 });
 
-test('accepts a layout', t => {
+test('accepts a layout', async t => {
 	const app = new App({
 		target,
 		props: {
@@ -565,7 +568,7 @@ test('accepts a layout', t => {
 	}
 });
 
-test('fires open/close/layout events', t => {
+test('fires open/close/layout events', async t => {
 	const app = new App({
 		target
 	});
@@ -585,8 +588,11 @@ test('fires open/close/layout events', t => {
 	
 		const pane = document.querySelector('.pane');
 	
-		mousedown(pane, 5, 100, true);
-		mouseup(document.querySelector('.overlay'), 200, 100);
+		await mousedown(pane, 5, 100, true);
+
+		await mouseup(document.querySelector('.overlay'), 200, 100);
+
+
 	
 		t.equal(events.open.length, 1);
 		const open = events.open[0];
@@ -620,8 +626,12 @@ test('fires open/close/layout events', t => {
 	
 		const divider = document.querySelector('.divider');
 	
-		mousedown(divider, 200, 100);
-		mouseup(document.querySelector('.overlay'), 0, 100);
+		await mousedown(divider, 200, 100);
+
+
+		await mouseup(document.querySelector('.overlay'), 0, 100);
+
+
 	
 		t.equal(events.close.length, 1);
 		const close = events.close[0];
