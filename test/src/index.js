@@ -577,11 +577,11 @@ test('fires open/close/layout events', async t => {
 		const events = {
 			open: [],
 			close: [],
-			layout: []
+			onLayout: []
 		};
 	
 		Object.keys(events).forEach(name => {
-			app.on(name, event => {
+			app.$on(name, event => {
 				events[name].push(event);
 			});
 		});
@@ -589,20 +589,18 @@ test('fires open/close/layout events', async t => {
 		const pane = document.querySelector('.pane');
 	
 		await mousedown(pane, 5, 100, true);
-
 		await mouseup(document.querySelector('.overlay'), 200, 100);
 
 
-	
 		t.equal(events.open.length, 1);
 		const open = events.open[0];
-		t.ok('pane' in open);
-		t.ok('layout' in open);
-		t.ok('id' in open.pane);
+		t.ok('pane' in open.detail);
+		t.ok('layout' in open.detail);
+		t.ok('id' in open.detail.pane);
 	
-		t.equal(events.layout.length, 2);
-		const layout0 = events.layout[0];
-		t.equal(JSON.stringify(open.layout), JSON.stringify(layout0.layout));
+		t.equal(events.onLayout.length, 2);
+		const layout0 = events.onLayout[0];
+		t.equal(JSON.stringify(open.detail.layout), JSON.stringify(layout0.detail.layout));
 	
 		t.htmlEqual(target.innerHTML, `
 			<div class="clip">
@@ -627,21 +625,17 @@ test('fires open/close/layout events', async t => {
 		const divider = document.querySelector('.divider');
 	
 		await mousedown(divider, 200, 100);
-
-
 		await mouseup(document.querySelector('.overlay'), 0, 100);
 
-
-	
 		t.equal(events.close.length, 1);
 		const close = events.close[0];
-		t.ok('pane' in close);
-		t.ok('layout' in close);
-		t.ok('id' in close.pane);
+		t.ok('pane' in close.detail);
+		t.ok('layout' in close.detail);
+		t.ok('id' in close.detail.pane);
 	
-		t.equal(events.layout.length, 3);
-		const layout2 = events.layout[2];
-		t.equal(JSON.stringify(close.layout), JSON.stringify(layout2.layout));	
+		t.equal(events.onLayout.length, 3);
+		const layout2 = events.onLayout[2];
+		t.equal(JSON.stringify(close.detail.layout), JSON.stringify(layout2.detail.layout));	
 	}
 	finally {
 		app.$destroy();
