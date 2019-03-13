@@ -508,32 +508,34 @@ test('accepts a layout', t => {
 	const app = new App({
 		target,
 		props: {
-			root: {
-				id: 0,
-				type: 'group',
-				row: false,
-				pos: 0,
-				size: 1,
-				prev: null,
-				next: null,
-				children: [
-					{
-						type: 'pane',
-						id: 1,
-						pos: 0,
-						size: 0.5,
-						prev: null,
-						next: null
-					},
-					{
-						type: 'pane',
-						id: 2,
-						pos: 0.5,
-						size: 0.5,
-						prev: null,
-						next: null
-					}
-				]
+			layout: {
+				root: {
+					id: 0,
+					type: 'group',
+					row: false,
+					pos: 0,
+					size: 1,
+					prev: null,
+					next: null,
+					children: [
+						{
+							type: 'pane',
+							id: 1,
+							pos: 0,
+							size: 0.5,
+							prev: null,
+							next: null
+						},
+						{
+							type: 'pane',
+							id: 2,
+							pos: 0.5,
+							size: 0.5,
+							prev: null,
+							next: null
+						}
+					]
+				}
 			}
 		}
 	});

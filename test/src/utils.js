@@ -43,7 +43,8 @@ export function normalize(html) {
 		.replace(/<!--.+?-->/g, '')
         .replace(/<object.+\/object>/g, '')
         .replace(/\s*svelte-\w+\s*/g, '')
-		.replace(/class="svelte-\w+"\s*/g, '')
+        .replace(/class="svelte-\w+"\s*/g, '')
+        .replace(/<!---->/g, '')
 		.replace(/>\s+/g, '>')
 		.replace(/\s+</g, '<');
 
