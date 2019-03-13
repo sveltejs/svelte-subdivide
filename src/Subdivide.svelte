@@ -1,5 +1,5 @@
 <script>
-	import { beforeUpdate, createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 
 	import Pane from './Pane.svelte';
 	import Divider from './Divider.svelte';
@@ -48,77 +48,72 @@
 
 	let _userSelect;
 	let _updating;
-	let _layoutChanged = true;
 
 	const dispatch = createEventDispatcher();
 
-	beforeUpdate(() => {
+	async function update () {
 		if (_updating) return;
 
-		if (_layoutChanged) {
-			_layoutChanged = false;
+		const panes = [];
+		const dividers = [];
 
-			const panes = [];
-			const dividers = [];
+		const createGroup = data => {
+			const group = new GroupData(data.row, {
+				pos: data.pos,
+				size: data.size,
+				prev: null,
+				next: null
+			});
 
-			const createGroup = data => {
-				const group = new GroupData(data.row, {
-					pos: data.pos,
-					size: data.size,
-					prev: null,
-					next: null
-				});
+			let lastChild = null;
 
-				let lastChild = null;
+			data.children.sort((a, b) => a.pos - b.pos).forEach((data, i) => {
+				let child;
 
-				data.children.sort((a, b) => a.pos - b.pos).forEach((data, i) => {
-					let child;
+				if (data.type === 'group') {
+					child = createGroup(data);
+				} else {
+					child = new PaneData(data.id, {
+						pos: data.pos,
+						size: data.size,
+						prev: null,
+						next: null
+					});
 
-					if (data.type === 'group') {
-						child = createGroup(data);
-					} else {
-						child = new PaneData(data.id, {
-							pos: data.pos,
-							size: data.size,
-							prev: null,
-							next: null
-						});
+					_ids.add(data.id);
+					panes.push(child);
+				}
 
-						_ids.add(data.id);
-						panes.push(child);
-					}
+				group.addChild(child);
 
-					group.addChild(child);
+				if (i > 0) {
+					child.prev = lastChild;
+					lastChild.next = child;
 
-					if (i > 0) {
-						child.prev = lastChild;
-						lastChild.next = child;
+					const dividerType = group.row ? 'vertical' : 'horizontal';
 
-						const dividerType = group.row ? 'vertical' : 'horizontal';
+					const divider = new DividerData({
+						id: _did++,
+						type: dividerType,
+						group,
+						position: child.pos,
+						prev: lastChild,
+						next: child
+					});
 
-						const divider = new DividerData({
-							id: _did++,
-							type: dividerType,
-							group,
-							position: child.pos,
-							prev: lastChild,
-							next: child
-						});
+					dividers.push(divider);
+				}
 
-						dividers.push(divider);
-					}
+				lastChild = child;
+			});
 
-					lastChild = child;
-				});
+			return group;
+		};
 
-				return group;
-			};
+		const root = createGroup(layout ? layout.root : defaultLayout.root);
 
-			const root = createGroup(layout ? layout.root : defaultLayout.root);
-
-			_did = _did, _ids = _ids, _root = root, _panes = panes, _dividers = dividers;
-		}
-	});
+		_did = _did, _ids = _ids, _root = root, _panes = panes, _dividers = dividers;
+	}
 
 	function _getId() {
 		while (true) {
@@ -130,13 +125,18 @@
 		}
 	}
 
-	function _updateLayout() {
+	$: {
+		layout;
+		update();
+	}
+
+	async function _updateLayout() {
 		_updating = true;
 
-		_layoutChanged = true;
 		layout = {
 			root: _root.toJSOb()
 		};
+		await tick();
 		dispatch('layout', { layout });
 
 		_updating = false;
@@ -249,8 +249,8 @@
 		const max = next.pos + next.size;
 
 		const position = _dragging.type === 'vertical'
-			? clamp((event.detail.clientX - bounds.left) / bounds.width, min, max)
-			: clamp((event.detail.clientY - bounds.top) / bounds.height, min, max);
+			? clamp((event.clientX - bounds.left) / bounds.width, min, max)
+			: clamp((event.clientY - bounds.top) / bounds.height, min, max);
 
 		prev.setRange(min, position);
 		next.setRange(position, max);
