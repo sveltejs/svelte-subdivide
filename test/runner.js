@@ -1,18 +1,13 @@
 const http = require('http');
 const ports = require('port-authority');
-const handler = require('serve-handler');
+const sirv = require('sirv');
 const puppeteer = require('puppeteer');
 
 async function go() {
 	const port = await ports.find(1234);
 	console.log(`found available port: ${port}`);
 
-	const server = http.createServer((req, res) => {
-		handler(req, res, {
-			public: 'test/public'
-		});
-	});
-
+	const server = http.createServer(sirv('test/public'));
 	server.listen(port);
 
 	await ports.wait(port).catch(() => {}); // workaround windows gremlins
