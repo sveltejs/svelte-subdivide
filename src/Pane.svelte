@@ -14,10 +14,12 @@
 	export let _keyPressed;
 	export let edge = null;
 	export let pane;
-	export let paneElement;
 	export let component;
 
 	export let cursor;
+
+	let paneElement;
+
 	$: {
 		if (!_keyPressed || !edge) cursor = 'default';
 
