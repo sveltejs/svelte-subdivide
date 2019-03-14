@@ -29,7 +29,6 @@
 		}
 	};
 
-	export let container;
 	export let component;
 	export let layout = defaultLayout;
 
@@ -37,6 +36,7 @@
 	export let padding = '6px';
 	export let color = 'white';
 
+	let container;
 	let _root;
 	let _panes = [];
 	let _keyPressed = false;
