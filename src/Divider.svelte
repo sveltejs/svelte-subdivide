@@ -1,3 +1,25 @@
+<script>
+	import * as constants from './constants.js';
+
+	export let divider;
+
+	export let style;
+	$: {
+		const group = divider.parent;
+
+		const x = group.getLeft();
+		const y = group.getTop();
+		const w = group.getWidth();
+		const h = group.getHeight();
+
+		if (divider.type === 'horizontal') {
+			style = `left: ${x * 100}%; top: ${(y + divider.position * h) * 100}%; width: ${w * 100}%`;
+		} else {
+			style = `top: ${y * 100}%; left: ${(x + divider.position * w) * 100}%; height: ${h * 100}%`;
+		}
+	}
+</script>
+
 <div class="{divider.type} divider" {style} on:mousedown/>
 
 <style>
@@ -35,26 +57,3 @@
 		background-color: var(--color);
 	}
 </style>
-
-<script>
-	import * as constants from './constants.js';
-
-	export default {
-		computed: {
-			style: ({ divider }) => {
-				const group = divider.parent;
-
-				const x = group.getLeft();
-				const y = group.getTop();
-				const w = group.getWidth();
-				const h = group.getHeight();
-
-				if (divider.type === 'horizontal') {
-					return `left: ${x * 100}%; top: ${(y + divider.position * h) * 100}%; width: ${w * 100}%`;
-				} else {
-					return `top: ${y * 100}%; left: ${(x + divider.position * w) * 100}%; height: ${h * 100}%`;
-				}
-			}
-		}
-	};
-</script>

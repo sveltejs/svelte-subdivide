@@ -1,4 +1,4 @@
-class Rect {
+class RectData {
 	constructor(pos, size, prev, next) {
 		this.pos = pos;
 		this.size = size;
@@ -67,7 +67,7 @@ class Rect {
 	}
 }
 
-export class Pane extends Rect {
+export class PaneData extends RectData {
 	constructor(id, { pos, size, prev, next }) {
 		super(pos, size, prev, next);
 		this.id = id;
@@ -79,7 +79,7 @@ export class Pane extends Rect {
 		panes.splice(index, 1);
 	}
 
-	toJSON() {
+	toJSOb() {
 		return {
 			id: this.id,
 			type: 'pane',
@@ -91,7 +91,7 @@ export class Pane extends Rect {
 	}
 }
 
-export class Group extends Rect {
+export class GroupData extends RectData {
 	constructor(row, { pos, size, prev, next }) {
 		super(pos, size, prev, next);
 
@@ -124,7 +124,7 @@ export class Group extends Rect {
 		while (i--) this.dividers[i].destroy(dividers);
 	}
 
-	toJSON() {
+	toJSOb() {
 		return {
 			type: 'group',
 			row: this.row,
@@ -132,12 +132,12 @@ export class Group extends Rect {
 			size: this.size,
 			prev: this.prev && this.prev.id,
 			next: this.next && this.next.id,
-			children: this.children.map(child => child.toJSON())
+			children: this.children.map(child => child.toJSOb())
 		};
 	}
 }
 
-export class Divider {
+export class DividerData {
 	constructor({ id, type, group, position, prev, next }) {
 		this.id = id;
 		this.type = type;

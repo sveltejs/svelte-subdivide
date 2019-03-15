@@ -1,8 +1,8 @@
 {
   "name": "@sveltejs/svelte-subdivide",
-  "version": "2.2.0",
+  "version": "3.0.0-alpha.1",
   "description": "A <Subdivide> component for building Blender-style layouts in Svelte apps",
-  "svelte": "src/Subdivide.html",
+  "svelte": "src/Subdivide.svelte",
   "module": "index.mjs",
   "main": "index.js",
   "scripts": {
@@ -14,17 +14,17 @@
     "pretest": "npm run build"
   },
   "devDependencies": {
-    "port-authority": "^1.0.3",
-    "puppeteer": "^1.2.0",
-    "rollup": "^0.59.4",
-    "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-svelte": "^4.1.0",
-    "serve-handler": "^3.0.0",
-    "svelte": "^2.7.1",
+    "port-authority": "^1.0.5",
+    "puppeteer": "^1.9.0",
+    "rollup": "^1.6.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-svelte": "^5.0.3",
+    "sirv": "^0.2.2",
+    "svelte": "^3.0.0-beta.15",
     "tap-diff": "^0.1.1",
-    "tap-dot": "^1.0.5",
-    "tape-modern": "^1.0.0"
+    "tap-dot": "^2.0.0",
+    "tape-modern": "^1.1.1"
   },
   "repository": "https://github.com/sveltejs/svelte-subdivide",
   "author": "Rich Harris",
